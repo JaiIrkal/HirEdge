@@ -12,6 +12,10 @@ import * as Notifications from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 
+import * as Linking from 'expo-linking';
+
+const prefix = Linking.createURL('');
+
 EStyleSheet.build({
 
 })
@@ -85,11 +89,26 @@ export default function App() {
     };
   }, []);
 
+  const linking = {
+    prefixes: [prefix],
+    config: {
+      screens: {
+        student: {
+          screens: {
+            Profile: 'student/Profile',
+            Drive: 'student/drive/:drive_id'
+          }
+        }
+      }
+    }
+  }
+  console.log(prefix)
+
   return (
     <SafeAreaView style={{
       flex: 1
     }}>
-    <NavigationContainer>
+      <NavigationContainer linking={linking} >
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
             <AutocompleteDropdownContextProvider>

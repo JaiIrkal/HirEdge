@@ -11,18 +11,21 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.imankit4568.HirEdge"
+      "package": "com.imankit4568.HirEdge",
+      "runtimeVersion": "1.0.0",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -32,8 +35,9 @@
         "projectId": "10f118a2-f215-474f-b9bb-7051c78f50fc"
       }
     },
-    "plugins": [
-      "expo-build-properties"
-    ]
+    "plugins": ["expo-build-properties"],
+    "updates": {
+      "url": "https://u.expo.dev/10f118a2-f215-474f-b9bb-7051c78f50fc"
+    }
   }
 }

@@ -10,7 +10,8 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { DrawerScreenProps } from '@react-navigation/drawer'
 import { ToastAndroid } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
-import * as DocumentPicker from 'expo-document-picker'
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 
 
@@ -68,51 +69,18 @@ const validationSchema = Yup.object({
 })
 
 const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">) => {
+    const api = useAxiosPrivate();
 
-    const initialValues: AddDriveValues = {
-        company_id: "",
-        company_name: "",
-        tier: 3,
-        job_title: "",
-        job_description: "",
-        job_ctc: "",
-        job_locations: [],
-        tenth_cutoff: 0,
-        twelfth_cutoff: 0,
-        ug_cutoff: 0,
-        branch: {
-            CSE: false,
-            ECE: false,
-            EEE: false,
-            MECH: false,
-            CIVIL: false,
-            ISE: false,
-            CHEM: false,
-        },
-        rounds: [{
-            round_details: "",
-        }, {
-                round_details: "",
-            }, {
-                round_details: "",
-        }],
-        registration_end_date: new Date(),
-        registration_end_time: new Date(),
-    }
     const [showDate, setShowDate] = useState(false);
     const [showTime, setShowTime] = useState(false);
     const [search, setSearch] = useState('')
-
     const s = useDebounce(search, 2000);
-
-
     const showTimepicker = () => {
         setShowTime(true);
     };
 
 
-
-    const api = useAxiosPrivate();
+    const { control, handleSubmit, setValue } = useForm<AddDriveValues>();
 
     const { data, isLoading, fetchNextPage } = useInfiniteQuery({
         queryKey: ["fetchCompanies", s],
@@ -133,51 +101,30 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
     });
     const searchRef = useRef(null)
     const dropdownController = useRef<any>(null)
-    const [file, setFile] = useState<DocumentPicker.DocumentPickerAsset>();
+    // const [file, setFile] = useState<DocumentPicker.DocumentPickerAsset>();
+
+    const onSubmit = (data: AddDriveValues) => {
+        console.log(data);
+        api.post('tpo/drives', data).then((res) => {
+            if (res.status == 200) {
+                ToastAndroid.show("Drive added successfully", ToastAndroid.SHORT);
+            }
+        }).catch((err) => { console.log(err) })
+    }
 
     return (
-        <ScrollView>
-            <Formik
-                initialValues={initialValues}
-                onSubmit={(values, helpers) => {
-
-                    const data = new FormData();
-
-                    var doc = { name: file?.name, uri: file?.uri, type: file?.mimeType };
-                    data.append('job_description_file', doc as any)
-                    console.log(values);
-                    // api.post('/tpo/drives/upload', data, {
-                    //     withCredentials: true,
-                    //     headers: {
-                    //         'Content-Type': 'multipart/form-data'
-                    //     }
-                    // }).then(res => {
-                    //     if (res.status == 200) {
-                    //     }
-                    // }).catch(err => {
-                    //     ToastAndroid.show('Something went Wrong...!!', ToastAndroid.SHORT);
-                    //     console.log(err);
-                    // })
-                    api.post('/tpo/drives', values).then(res => {
-                        if (res.status == 200) {
-                            ToastAndroid.show('Drive Posted Successfully', ToastAndroid.SHORT);
-                            // helpers.resetForm();
-                        }
-                    }).catch(err => {
-                        ToastAndroid.show('Something went Wrong...!!', ToastAndroid.SHORT);
-                        console.log(err);
-                    })  
-                }}
-                validationSchema={validationSchema}
-            >
-                {
-                    ({ values, errors, handleChange, handleSubmit, setFieldValue }) => (<View style={{
-                        backgroundColor: 'white'
-                    }}>
-                        <View style={{
-                            zIndex: 1
-                        }}>
-                            <Text >Select Company Name</Text>
+        <KeyboardAwareScrollView enableOnAndroid >
+            <View style={{
+                backgroundColor: 'white'
+            }}>
+                <View style={{
+                    zIndex: 1
+                }}>
+                    <Text >Select Company Name</Text>
+                    <Controller
+                        name='company_name'
+                        control={control}
+                        render={({ field: { value, }, fieldState: { error } }) => (
                             <AutocompleteDropdown
                                 textInputProps={{
                                     placeholder: "Select Company",
@@ -191,8 +138,8 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
                                 onChangeText={setSearch}
                                 loading={isLoading}
                                 onSelectItem={(item) => {
-                                    item && setFieldValue('company_id', item.id);
-                                    item && setFieldValue('company_name', item.title);
+                                    item && setValue('company_id', item.id);
+                                    item && setValue('company_name', item.title!);
                                 }}
                                 debounce={2000}
                                 showChevron
@@ -208,240 +155,290 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
                                 inputContainerStyle={{
                                     backgroundColor: 'white'
                                 }}
-                            /> 
-                        </View>
-
-                        <Input
-                            value={values.job_title}
-                            onChangeText={handleChange('job_title')}
-                            placeholder='Enter Job Title'
-                            label="Job Title"
-                            errorMessage={errors.job_title}
-                        />
-                        <Input
-                            value={values.job_ctc}
-                            onChangeText={handleChange('job_ctc')}
-                            placeholder='Enter CTC'
-                            label="CTC"
-                            errorMessage={errors.job_ctc}
-                            style={{
-                                backgroundColor: 'white'
-                            }}
-                            containerStyle={{
-                                backgroundColor: 'white'
-                            }}
-                        />
-                        <Text>Tier</Text>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                justifyContent: 'space-evenly',
-                                borderWidth: 1,
-                                borderColor: 'gray',
-                                marginHorizontal: 5
-                            }}>
-                            <CheckBox
-                                checked={values.tier === 1}
-                                onPress={() => { setFieldValue('tier', 1) }}
-                                title={"Tier - I"}
                             />
-                            <CheckBox
-                                checked={values.tier === 2}
-                                onPress={() => { setFieldValue('tier', 2) }}
-                                title={"Tier - II"}
-                            />
-                            <CheckBox
-                                checked={values.tier === 3}
-                                onPress={() => { setFieldValue('tier', 3) }}
-                                title={"Tier - III"}
-                            />
-                            <CheckBox
-                                checked={values.tier === 0}
-                                onPress={() => { setFieldValue('tier', 0) }}
-                                title={"Dream"}
-                            />
+                        )}
+                    />
+                </View>
 
-                        </View>
+                <Controller
+                    name='job_title'
+                    control={control}
+                    render={({ field: { value, onChange }, fieldState: { error } }) => (<Input
+                        value={value}
+                        onChangeText={onChange}
+                        placeholder='Enter Job Title'
+                        label="Job Title"
+                    // errorMessage={errors.job_title}
+                    />)}
+                />
+                <Controller
+                    name='job_ctc'
+                    control={control}
+                    rules={{}}
+                    render={({ field: { value, onChange }, fieldState: { error } }) => (<Input
+                        value={value}
+                        onChangeText={onChange}
+                        placeholder='Enter Job CTC'
+                        label="Job CTC"
+                    // errorMessage={errors.job_title}
+                    />)}
+                />
 
-                        <Text>Branch</Text>
 
-                        <View style={{
-                            marginVertical: 5,
-                            flexWrap: 'wrap',
+                <Text>Tier</Text>
+                <Controller
+                    name='tier'
+                    control={control}
+                    render={({ field: { value, onChange } }) => (<View
+                        style={{
                             flexDirection: 'row',
+                            justifyContent: 'space-evenly',
                             borderWidth: 1,
                             borderColor: 'gray',
                             marginHorizontal: 5
-                        }}> 
+                        }}>
+                        <CheckBox
+                            checked={value === 1}
+                            onPress={() => { onChange(1) }}
+                            title={"Tier - I"}
+                        />
+                        <CheckBox
+                            checked={value === 2}
+                            onPress={() => { onChange(2) }}
+                            title={"Tier - II"}
+                        />
+                        <CheckBox
+                            checked={value === 3}
+                            onPress={() => { onChange(3) }}
+                            title={"Tier - III"}
+                        />
+                        <CheckBox
+                            checked={value === 0}
+                            onPress={() => { onChange(0) }}
+                            title={"Dream"}
+                        />
+                    </View>)}
 
-                            <CheckBox
-                                checked={values.branch.CSE}
-                                title={"CSE"}
-                                onPress={() => { setFieldValue('branch.CSE', !values.branch.CSE) }}
-                            />
-                            <CheckBox
-                                checked={values.branch.ISE}
-                                title={"ISE"}
-                                onPress={() => { setFieldValue('branch.ISE', !values.branch.ISE) }}
-                            />
-                            <CheckBox
-                                checked={values.branch.ECE}
-                                title={"ECE"}
-                                onPress={() => { setFieldValue('branch.ECE', !values.branch.ECE) }}
-                            />
-                            <CheckBox
-                                checked={values.branch.EEE}
-                                title={"EEE"}
-                                onPress={() => { setFieldValue('branch.EEE', !values.branch.EEE) }}
-                            />
-                            <CheckBox
-                                checked={values.branch.MECH}
-                                title={"MECH"}
-                                onPress={() => { setFieldValue('branch.MECH', !values.branch.MECH) }}
-                            />
-                            <CheckBox
-                                checked={values.branch.CIVIL}
-                                title={"CIVIL"}
-                                onPress={() => { setFieldValue('branch.CIVIL', !values.branch.CIVIL) }}
-                            />
-                            <CheckBox
-                                checked={values.branch.CHEM}
-                                title={"CHEM"}
-                                onPress={() => { setFieldValue('branch.CHEM', !values.branch.CHEM) }}
-                            />
+                />
 
+                <Text>Branch</Text>
 
-                        </View>
+                <Controller
+                    name='branch.CSE'
+                    control={control}
+                    render={({ field: { value, onChange } }) => (
+                        <CheckBox
+                            checked={value}
+                            title={"CSE"}
+                            onPress={() => { onChange(!value) }}
+                        />
+                    )}
+                />
+                <Controller
+                    name='branch.ISE'
+                    control={control}
+                    render={({ field: { value, onChange } }) => (
+                        <CheckBox
+                            checked={value}
+                            title={"ISE"}
+                            onPress={() => { onChange(!value) }}
+                        />
+                    )}
+                />
+                <Controller
+                    name='branch.ECE'
+                    control={control}
+                    render={({ field: { value, onChange } }) => (
+                        <CheckBox
+                            checked={value}
+                            title={"ECE"}
+                            onPress={() => { onChange(!value) }}
+                        />
+                    )}
+                />
+                <Controller
+                    name='branch.EEE'
+                    control={control}
+                    render={({ field: { value, onChange } }) => (
+                        <CheckBox
+                            checked={value}
+                            title={"EEE"}
+                            onPress={() => { onChange(!value) }}
+                        />
+                    )}
+                />
+                <Controller
+                    name='branch.MECH'
+                    control={control}
+                    render={({ field: { value, onChange } }) => (
+                        <CheckBox
+                            checked={value}
+                            title={"MECH"}
+                            onPress={() => { onChange(!value) }}
+                        />
+                    )}
+                />
+                <Controller
+                    name='branch.CIVIL'
+                    control={control}
+                    render={({ field: { value, onChange } }) => (
+                        <CheckBox
+                            checked={value}
+                            title={"CIVIL"}
+                            onPress={() => { onChange(!value) }}
+                        />
+                    )}
+                />
+                <Controller
+                    name='branch.CHEM'
+                    control={control}
+                    render={({ field: { value, onChange } }) => (
+                        <CheckBox
+                            checked={value}
+                            title={"CHEM"}
+                            onPress={() => { onChange(!value) }}
+                        />
+                    )}
+                />
+
+                <Controller
+                    name='tenth_cutoff'
+                    control={control}
+                    render={({ field: { value, onChange } }) => (
                         <Input
                             label="10th Percentage"
-                            value={values.tenth_cutoff.toString()}
+                            value={""}
                             keyboardType='decimal-pad'
-                            onChangeText={handleChange('tenth_cutoff')}
+                            onChangeText={onChange}
                             inputMode='decimal'
-                            errorMessage={errors.tenth_cutoff}
-                            leftIcon={<TouchableOpacity onPress={() => {
-                                setFieldValue('tenth_cutoff', values.tenth_cutoff - 1);
-                            }}><Icon name='minuscircleo' type='antdesign' /></TouchableOpacity>
-                            }
-                            rightIcon={<TouchableOpacity onPress={() => {
-                                setFieldValue('tenth_cutoff', values.tenth_cutoff + +1);
-                            }}><Icon name='pluscircleo' type='antdesign' /></TouchableOpacity>}
+                            // errorMessage={errors.tenth_cutoff}
+                            // leftIcon={<TouchableOpacity onPress={() => {
+                            //     setFieldValue('tenth_cutoff', values.tenth_cutoff - 1);
+                            // }}><Icon name='minuscircleo' type='antdesign' /></TouchableOpacity>
+                            // }
+                            // rightIcon={<TouchableOpacity onPress={() => {
+                            //     setFieldValue('tenth_cutoff', values.tenth_cutoff + +1);
+                            // }}><Icon name='pluscircleo' type='antdesign' /></TouchableOpacity>}
                         />
+                    )}
+                />
+
+                <Controller
+                    name='twelfth_cutoff'
+                    control={control}
+                    render={({ field: { value, onChange }, fieldState: { } }) => (
                         <Input
                             label="12th Percentage"
-                            value={values.twelfth_cutoff.toString()}
+                            value={""}
                             inputMode='decimal'
                             keyboardType='decimal-pad'
-                            onChangeText={handleChange('twelfth_cutoff')}
-                            errorMessage={errors.twelfth_cutoff}
-                            leftIcon={<TouchableOpacity onPress={() => {
-                                setFieldValue('twelfth_cutoff', values.twelfth_cutoff - 1)
-                            }}><Icon name='minuscircleo' type='antdesign' /></TouchableOpacity>
-                            }
-                            rightIcon={<TouchableOpacity onPress={() => {
-                                setFieldValue('twelfth_cutoff', values.twelfth_cutoff + +1)
-                            }}><Icon name='pluscircleo' type='antdesign' /></TouchableOpacity>}
+                            onChangeText={onChange}
+                        // errorMessage={errors.twelfth_cutoff}
+                        // leftIcon={<TouchableOpacity onPress={() => {
+                        //     setFieldValue('twelfth_cutoff', values.twelfth_cutoff - 1)
+                        // }}><Icon name='minuscircleo' type='antdesign' /></TouchableOpacity>
+                        // }
+                        // rightIcon={<TouchableOpacity onPress={() => {
+                        //     setFieldValue('twelfth_cutoff', values.twelfth_cutoff + +1)
+                        // }}><Icon name='pluscircleo' type='antdesign' /></TouchableOpacity>}
                         />
-
-                        <Input
-                            label="UG CGPA"
-                            value={values.ug_cutoff.toString()}
-                            inputMode='numeric'
-                            keyboardType='numeric'
-                            onChangeText={handleChange('ug_cutoff')}
-                            leftIcon={<TouchableOpacity onPress={() => {
-                                if (values.ug_cutoff - 1 > 0.0)
-                                    setFieldValue('ug_cutoff', values.ug_cutoff - 1)
-                            }}><Icon name='minuscircleo' type='antdesign' /></TouchableOpacity>
-                            }
-                            rightIcon={<TouchableOpacity onPress={() => {
-                                if (values.ug_cutoff + +1 <= 10.0)
-                                    setFieldValue('ug_cutoff', values.ug_cutoff + +1)
-                            }}><Icon name='pluscircleo' type='antdesign' /></TouchableOpacity>}
-                            errorMessage={errors.ug_cutoff}
-
-                        />
-
-                        <Text h4>Selection Process</Text>
-                        <FieldArray name='rounds'>
-                            {
-                                (arrayHelpers) => (<View>
-                                    {
-                                        values.rounds.map((round, index: number) => {
-                                            return (
-                                                <View key={index} style={{
-                                                    flexDirection: 'column',
-                                                    alignItems: 'center',
-                                                    flexWrap: 'wrap',
-                                                }}>
-                                                    <Text> Round - {index + +1}</Text>
-                                                    <Input
-                                                        value={round?.round_details}
-                                                        onChangeText={handleChange(`rounds[${index}.round_details]`)}
-                                                        placeholder='Enter Round Details'
-                                                        label="Round Details"
-                                                        containerStyle={{
-                                                            width: "100%"
-                                                        }}
-                                                        rightIcon={<Icon name="delete" onPress={arrayHelpers.handleRemove(index)} />}
-                                                    />
-                                                </View>)
-                                        })
-                                    }
-
-                                    <Button onPress={() => {
-                                        arrayHelpers.push({
-                                            round_name: '',
-                                        })
-                                    }}
-                                    >Add Round Details</Button>
-                                </View>)
-                            }
-                        </FieldArray>
-                        <View style={{
-                        }}>
+                    )}
+                />
 
 
+                <Controller
+                    name='ug_cutoff'
+                    control={control}
+                    render={({ field: { value, onChange }, fieldState: { error } }) => (<Input
+                        label="UG CGPA"
+                        value={value ? value.toString() : ""}
+                        placeholder='Enter UG Cutoff'
+                        enterKeyHint='done'
+                        inputMode='numeric'
+                        keyboardType='numeric'
+                        onChangeText={onChange}
+                    // leftIcon={<TouchableOpacity onPress={() => {
+                    //     if (values.ug_cutoff - 1 > 0.0)
+                    //         setFieldValue('ug_cutoff', values.ug_cutoff - 1)
+                    // }}><Icon name='minuscircleo' type='antdesign' /></TouchableOpacity>
+                    // }
+                    // rightIcon={<TouchableOpacity onPress={() => {
+                    //     if (values.ug_cutoff + +1 <= 10.0)
+                    //         setFieldValue('ug_cutoff', values.ug_cutoff + +1)
+                    // }}><Icon name='pluscircleo' type='antdesign' /></TouchableOpacity>}
+                    // errorMessage={errors.ug_cutoff}
+                    />)}
+                />
+                <Text h4>Selection Process</Text>
+                <Controller
+                    name='registration_end_date'
+                    control={control}
+                    render={({ field: { value, onChange }, fieldState: { error } }) => {
+                        return (<>
                             <Input
-                                value={values.registration_end_date.toLocaleDateString()}
+                                value={value ? value.toLocaleDateString() : ""}
                                 rightIcon={<Icon name='calendar' type='antdesign' onPress={() => {
                                     setShowDate(true);
                                 }} />}
                                 label={"Registration End Date"}
                             />
-
+                            {showDate && <DateTimePicker
+                                value={value || new Date()}
+                                mode='date'
+                                minimumDate={new Date()}
+                                onChange={(_, date) => {
+                                    if (date) {
+                                        onChange(date);
+                                    }
+                                    setShowDate(false);
+                                }}
+                            />}
+                        </>
+                        )
+                    }}
+                />
+                <Controller
+                    name='registration_end_time'
+                    control={control}
+                    render={({ field: { value, onChange }, fieldState: { error } }) => {
+                        return (<>
                             <Input
-                                value={values.registration_end_time.toLocaleTimeString()}
+                                value={value ? value.toLocaleTimeString() : ""}
                                 rightIcon={<Icon name='clockcircleo' type='antdesign' onPress={() => {
                                     setShowTime(true);
                                 }} />}
                                 label={"Registration End Time"}
                             />
-                        </View>
-                        {
-                            showDate && <DateTimePicker
-                                value={values.registration_end_date || new Date()}
-                                mode='date' minimumDate={new Date()}
-                                onChange={(_, date) => {
-                                    if (date) {
-                                        setFieldValue('registration_end_date', date);
-                                    }
-                                    setShowDate(false);
-                                }}
-
-                            />
-                        }
-                        <ScrollView style={{
-                            minHeight: 200,
-                            maxHeight: Dimensions.get('window').height * 0.4,
-                        }}>
+                            {
+                                showTime && <DateTimePicker
+                                    value={value || new Date()}
+                                    mode={'time'}
+                                    onChange={(_, date) => {
+                                        if (date) {
+                                            onChange(date);
+                                        }
+                                        setShowTime(false);
+                                    }}
+                                />
+                            }
+                        </>)
+                    }}
+                />
+                <ScrollView style={{
+                    minHeight: 200,
+                    maxHeight: Dimensions.get('window').height * 0.4,
+                }}>
+                    <Controller
+                        name='job_description'
+                        control={control}
+                        render={({ field: { value, onChange }, fieldState: { error } }) => (
                             <Input
                                 multiline
-                                value={values.job_description}
-                                onChangeText={handleChange('job_description')}
+                                value={value}
+                                onChangeText={onChange}
                                 placeholder='Enter Job Description'
                                 label="Job Description"
-                                errorMessage={errors.job_description}
+                                errorMessage={error?.message}
                                 scrollEnabled
                                 inputStyle={{
                                     minHeight: 150,
@@ -449,37 +446,14 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
                                     textAlignVertical: 'bottom'
                                 }}
                             />
-
-                        </ScrollView>
-                        {
-                            showTime && <DateTimePicker
-                                value={values.registration_end_time || new Date()}
-                                mode={'time'}
-                                onChange={(_, date) => {
-                                    if (date) {
-                                        setFieldValue('registration_end_time', date);
-
-                                    }
-                                    setShowTime(false);
-                                }}
-
-                            />
-                        }
-
-                        <Button color={'success'}
-                            onPress={() => {
-                                handleSubmit();
-                            }}
-                        >Submit</Button>
-                    </View>
-
-                    )
-
-                }  
-            </Formik>
-
-
-        </ScrollView>
+                        )}
+                    />
+                </ScrollView>
+                <Button color={'success'}
+                    onPress={handleSubmit(onSubmit)}
+                >Submit</Button>
+            </View>
+        </KeyboardAwareScrollView>
     )
 }
 

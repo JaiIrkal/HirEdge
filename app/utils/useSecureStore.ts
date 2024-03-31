@@ -13,6 +13,7 @@ export async function getValueFor(key:string) {
         return result;
     } else {
         console.log('No values stored under that key.');
+        return null;
     }
 }
 

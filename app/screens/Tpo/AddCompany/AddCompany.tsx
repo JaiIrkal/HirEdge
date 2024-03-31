@@ -3,8 +3,12 @@ import React from 'react'
 import { Button, Input } from '@rneui/themed'
 import useAxiosPrivate from '../../../utils/axiosPrivate'
 import * as Yup from 'yup';
+import { Controller, useForm } from 'react-hook-form';
 
-
+type AddCompanyForm = {
+    company_name: string;
+    company_website: string;
+}
 
 const validationSchema = Yup.object({
     company_name: Yup.string().required("Company Name cannot be empty"),
@@ -14,47 +18,53 @@ const validationSchema = Yup.object({
 const AddCompany = () => {
 
     const api = useAxiosPrivate();
+
+    const { control, handleSubmit } = useForm<AddCompanyForm>();
+
+
+    const onSubmit = (values: AddCompanyForm) => {
+        api.post('/tpo/companies', values).then((res) => {
+            if (res.status === 200) {
+                ToastAndroid.show('Company Added to Database', ToastAndroid.SHORT);
+
+            }
+        }).catch((e) => { console.log(e) });
+    }
+
     return (
         <View>
 
-            <Formik
-                initialValues={{
-                    company_name: '',
-                    company_website: '',
+
+            <Controller
+                name='company_name'
+                control={control}
+                rules={{
+                    required: "Company Name cannot be empty",
                 }}
-                validationSchema={validationSchema}
-                onSubmit={(values, formikHelpers) => {
-                    api.post('/tpo/companies', values).then((res) => {
-                        if (res.status === 200) {
-                            ToastAndroid.show('Company Added to Database', ToastAndroid.SHORT);
-                            formikHelpers.resetForm();
-                        }
-                    }).catch((e) => { console.log(e) });
-                }}
-            >
-                {
-                    ({ values, errors, handleChange, handleSubmit }) => (<View>
-                        <Input
-                            value={values.company_name}
-                            onChangeText={handleChange('company_name')}
-                            placeholder='Enter Company Name'
-                            label="Company Name"
-                            errorMessage={errors.company_name}
+                render={({ field: { value, onChange }, fieldState: { error } }) => (
+                    <Input
+                        value={value}
+                        onChangeText={onChange}
+                        placeholder='Enter Company Name'
+                        label="Company Name"
+                    // errorMessage={errors.company_name}
+                    />)}
                         />
+            <Controller
+                name='company_website'
+                control={control}
+                render={({ field: { value, onChange }, fieldState: { error } }) => (
                         <Input
-                            value={values.company_website}
-                            onChangeText={handleChange('company_website')}
+                        value={value}
+                        onChangeText={onChange}
                             placeholder='Enter Company Website'
                             label="Company Website"
-                            errorMessage={errors.company_website}
-                        />
+                    // errorMessage={errors.company_website}
+                    />
+                )}
+            />
 
-                        <Button color={'success'} onPress={() => {
-                            handleSubmit();
-                        }}>Submit</Button>
-                    </View>)
-                }
-            </Formik>
+            <Button color={'success'} onPress={handleSubmit(onSubmit)}>Submit</Button>
 
         </View>
     )

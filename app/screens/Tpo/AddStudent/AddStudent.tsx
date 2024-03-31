@@ -26,7 +26,6 @@ const valdationSchema = Yup.object({
     tenth_percentage: Yup.number().required("10th Percentage is required").min(1).max(100).typeError('Must be a number'),
     twelfth_percentage: Yup.number().required("12th Percentage is required").typeError('Must be a number'),
     ug_cgpa: Yup.number().min(0).max(10).required("UG CGPA is required").typeError('Must be a number'),
-
 })
 
 interface StudentForm {

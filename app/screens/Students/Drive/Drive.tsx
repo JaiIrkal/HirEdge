@@ -68,14 +68,19 @@ const DrivePage = ({ route, navigation }: DrawerScreenProps<StudentDrawerParamLi
                                     buttonStyle={styles.registerButton}
                                 />
                                 <Button
-                                    title="Know More"
+                                    title="Know More about Company"
                                     onPress={() => {
                                         navigation.navigate('Company', {
                                             company_id: result.data.company_details._id
                                         });
                                     }}
-                                    titleStyle={styles.buttonTitle}
-                                    buttonStyle={styles.knowMoreButton}
+                                    titleStyle={[styles.buttonTitle, {
+
+                                    }]}
+                                    buttonStyle={[styles.knowMoreButton, {
+
+                                    }]}
+
                                 />
                             </View>
                         </>
@@ -135,8 +140,11 @@ const styles = StyleSheet.create({
         color: '#333333',
     },
     buttonsContainer: {
+        display: 'flex',
+        flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
     },
     registerButtonContainer: {
         flex: 1,
@@ -148,10 +156,12 @@ const styles = StyleSheet.create({
     registerButton: {
         borderRadius: 20,
         backgroundColor: 'primary',
+        flex: 1
     },
     knowMoreButton: {
         borderRadius: 20,
         backgroundColor: '#107387',
+        flex: 1,
     },
 });
 

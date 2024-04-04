@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "376423806273",
+    "project_id": "hiredge-72a4e",
+    "storage_bucket": "hiredge-72a4e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:376423806273:android:0929393f50915a1b621dc0",
+        "android_client_info": {
+          "package_name": "com.imankit4568.HirEdge"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqusXE462Ndj_AFo2gVy0LLNv4zy_u8OM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

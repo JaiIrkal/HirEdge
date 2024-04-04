@@ -14,24 +14,19 @@ import { Input, Button } from "@rneui/themed";
 import Footer from "../../components/footer/footer";
 import api from '../../utils/axios'
 import { save } from '../../utils/useSecureStore';
-
+import { Dropdown } from 'react-native-element-dropdown'
 
 const Login = ({ navigation }: StackScreenProps<RootStackParamList, 'Login'>) => {
 
-    const [role, setRole] = useState<string>('');
+    const [role, setRole] = useState<string>('student');
     const { setAuthState } = useAuth();
-    const { handleSubmit, control } = useForm<LoginFormValues>();
-    const validation = {
-        user_id: {
-            required: true,
-            minLength: 10,
-        },
-        password: {
-            required: true
-        }
-    };
+    const { handleSubmit, control, resetField } = useForm<LoginFormValues>();
 
     const onSubmit = async (data: LoginFormValues) => {
+
+        console.log(data);
+
+
         await api.post('/login', data).then((res) => {
             if (res.status == 200) {
                 save('refresh_token', `${res.data?.refresh_token}`);
@@ -88,7 +83,9 @@ const Login = ({ navigation }: StackScreenProps<RootStackParamList, 'Login'>) =>
                                         }
                                     ]}
                                     onValueChange={(value) => {
-                                        field.onChange(value)
+                                        field.onChange(value);
+                                        setRole(value);
+                                        resetField('user_id')
                                     }}
                                 />
                         {error?.type == 'required' && <Text style={{
@@ -99,33 +96,74 @@ const Login = ({ navigation }: StackScreenProps<RootStackParamList, 'Login'>) =>
                 )
                 }>
             </Controller>
+            {
+                (<Controller
+                    name="user_id"
+                    control={control}
+                    rules={{
+                        required: 'User ID is required',
+                        pattern: role == 'student' ? {
+                            value: /2[sS][dD][0-9]{2}[A-Z,a-z]{2}[0-9]{3}/,
+                            message: "Invalid user ID"
+                        } : undefined
 
-            <Controller
-                name="user_id"
-                control={control}
-                rules={{
-                    required: true
-                }}
-                render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (<Input
-                    label="User ID"
-                    ref={UserIdRef}
-                    placeholder="Enter UserID"
-                    onBlur={onBlur}
-                    value={value}
-                    onChangeText={onChange}
-                    onSubmitEditing={() => {
-                        PasswordRef.current.focus();
                     }}
-                    errorMessage={error?.type === 'required' ? "User ID is Required" : undefined}
-                />)}
-            />
+                    render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (
+
+                        role == 'student' || role == 'tpo' || role == 'alumni' ? <Input
+                            label="User ID"
+                            ref={UserIdRef}
+                            placeholder="Enter UserID"
+                            onBlur={onBlur}
+                            value={value}
+                            onChangeText={onChange}
+                            onSubmitEditing={() => {
+                                PasswordRef.current.focus();
+                            }}
+                            errorMessage={error?.message}
+
+                        /> : <><Dropdown
+                            data={[
+                                {
+                                    label: "CSE", value: "CSE"
+                                }
+                            ]}
+                            placeholder="Select Branch"
+                            placeholderStyle={{
+                                fontSize: 20
+                            }}
+                            value={value}
+                            labelField={'label'}
+                            valueField={'value'}
+                            onChange={(item) => { onChange(item.value) }}
+                            containerStyle={{
+                            }}
+                            style={{
+                                marginHorizontal: 10,
+                                marginTop: 10
+                            }}
+
+
+
+                        />
+                            {error && <Text style={{
+                                marginHorizontal: 10,
+                                color: 'red'
+                            }}>{error.message}</Text>}
+                        </>
+
+                    )}
+                />
+                )
+            }
+
 
             <Controller
                 name="password"
                 control={control}
                 rules={
                     {
-                        required: true,
+                        required: "Password is required",
                     }
                 }
                 render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (<Input
@@ -138,7 +176,7 @@ const Login = ({ navigation }: StackScreenProps<RootStackParamList, 'Login'>) =>
                     onSubmitEditing={() => {
                         PasswordRef.current.blur();
                     }}
-                    errorMessage={error?.type === 'required' ? "Password is Required" : undefined}
+                    errorMessage={error?.message}
                     secureTextEntry={true}
                 />)}
             />

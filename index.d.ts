@@ -162,6 +162,7 @@ type CompaniesPageResponseType = {
   metadata: {
     totalCount: number;
     pageCount: number;
+    page: number;
   };
   data: Array<CompanyListItemType>
 }

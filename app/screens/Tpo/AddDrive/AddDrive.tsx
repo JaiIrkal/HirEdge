@@ -12,6 +12,7 @@ import { ToastAndroid } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { Dropdown } from 'react-native-element-dropdown';
 
 
 
@@ -82,12 +83,13 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
 
     const { control, handleSubmit, setValue } = useForm<AddDriveValues>();
 
-    const { data, isLoading, fetchNextPage } = useInfiniteQuery({
+    const { data, isLoading, fetchNextPage, fetchPreviousPage } = useInfiniteQuery({
         queryKey: ["fetchCompanies", s],
         queryFn: ({ pageParam }): Promise<CompanyOptionsResponseType> => (
             api.get('/common/options/companies', {
                 params: {
-                    s: s
+                    s: s,
+                    page: pageParam
                 }
             }).then(res => res.data.companies)
         ),
@@ -97,7 +99,13 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
                 return lastPage.metadata.page + 1;
             return undefined;
         },
-        initialPageParam: 1
+        initialPageParam: 1,
+        getPreviousPageParam: (lastPage) => {
+            if (lastPage.metadata.page > 1)
+                return lastPage.metadata.page - 1;
+            return undefined;
+        },
+        maxPages: 5
     });
     const searchRef = useRef(null)
     const dropdownController = useRef<any>(null)
@@ -125,38 +133,29 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
                         name='company_name'
                         control={control}
                         render={({ field: { value, }, fieldState: { error } }) => (
-                            <AutocompleteDropdown
-                                textInputProps={{
-                                    placeholder: "Select Company",
-                                }}
-                                ref={searchRef}
-                                controller={controller => {
-                                    dropdownController.current = controller
-                                }}
-                                dataSet={data?.pages.flatMap((page) => page.data)}
-                                suggestionsListMaxHeight={Dimensions.get('window').height * 0.4}
+                            <Dropdown
+                                data={data?.pages.flatMap((page) => page.data)!}
+                                labelField={'title'}
+                                valueField={'id'}
+                                searchField={'title'}
                                 onChangeText={setSearch}
-                                loading={isLoading}
-                                onSelectItem={(item) => {
+                                value={value}
+                                search
+                                onChange={(item) => {
                                     item && setValue('company_id', item.id);
-                                    item && setValue('company_name', item.title!);
+                                    item && setValue('company_name', item.title);
                                 }}
-                                debounce={2000}
-                                showChevron
-                                useFilter={false}
-                                emptyResultText='Nothing Found'
-                                containerStyle={{
-                                    backgroundColor: 'white',
-                                    borderBottomColor: 'grey',
-                                    borderBottomWidth: 1,
-                                    paddingHorizontal: 5,
-                                    marginHorizontal: 10
+                                flatListProps={{
+                                    onEndReached: () => {
+                                        fetchNextPage();
+                                    },
+                                    onStartReached: () => {
+                                        fetchPreviousPage();
+                                    },
+                                    onEndReachedThreshold: 1,
+                                    onStartReachedThreshold: 1
                                 }}
-                                inputContainerStyle={{
-                                    backgroundColor: 'white'
-                                }}
-                            />
-                        )}
+                            />)}
                     />
                 </View>
 

@@ -6,7 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import Welcome from './Public/welcome';
 import Login from './Public/login';
 import { useAuth } from '../utils/AuthContext';
-import HODDashboard from './HOD/Dashboard/Dashboard';
+import HODLayout from './HOD/Layout';
 import StudentLayout from './Students/Layout';
 import TPOLayout from './Tpo/Layout';
 import AlumniLayout from './Alumni/AlumniLayout';
@@ -34,7 +34,7 @@ export default function Layout() {
                     </>) : authState.role === 'alumni' ? (<>
                                 <RootStack.Screen name='alumni' component={AlumniLayout} />
                     </>) : authState.role === 'hod' ? (<>
-                                    <RootStack.Screen name='hod' component={HODDashboard} />
+                                    <RootStack.Screen name='hod' component={HODLayout} />
                     </>) : null
             }
 

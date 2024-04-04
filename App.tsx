@@ -1,18 +1,17 @@
 import 'react-native-gesture-handler';
-import { NavigationContainer } from '@react-navigation/native';
+import { LinkingOptions, NavigationContainer } from '@react-navigation/native';
 import Layout from './app/screens/RootLayout';
 import AuthProvider from './app/utils/AuthContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-dropdown';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import EStyleSheet from 'react-native-extended-stylesheet';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
-import * as Notifications from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
-import { Platform } from 'react-native';
-
+import { Platform, PermissionsAndroid, Alert, Linking as LinkingRN } from 'react-native';
 import * as Linking from 'expo-linking';
+import messaging from '@react-native-firebase/messaging';
+PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
 
 const prefix = Linking.createURL('');
 
@@ -22,74 +21,35 @@ EStyleSheet.build({
 
 const queryClient = new QueryClient();
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
-});
 
-async function registerForPushNotificationsAsync() {
-  let token;
-
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('default', {
-      name: 'default',
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF231F7C',
-    });
+messaging().setBackgroundMessageHandler(async remoteMessage => {
+  //logic
+  if (remoteMessage?.data?.link) {
+    Linking.openURL(remoteMessage.data.link as string)
   }
 
-  if (Device.isDevice) {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    if (finalStatus !== 'granted') {
-      alert('Failed to get push token for push notification!');
-      return;
-    }
-    // Learn more about projectId:
-    // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
-    // token = (await Notifications.getExpoPushTokenAsync({ projectId: Constants.expoConfig?.extra!.eas.projectId, })).data;
-    token = (await Notifications.getDevicePushTokenAsync()).data;
-    console.log(token);
-  } else {
-    alert('Must use physical device for Push Notifications');
-  }
+})
 
-  return token;
-}
 
 export default function App() {
-
-  const [expoPushToken, setExpoPushToken] = useState<any>('');
-  const [notification, setNotification] = useState<any>(false);
-  const notificationListener = useRef<Notifications.Subscription>();
-  const responseListener = useRef<Notifications.Subscription>();
-
   useEffect(() => {
-    registerForPushNotificationsAsync().then(token => setExpoPushToken(token!));
+    messaging().getToken().then((token) => {
+      console.log(token);
+    })
 
-    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-      setNotification(notification);
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      Alert.alert('A new FCM message', JSON.stringify(remoteMessage));
     });
 
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log(response);
-    });
+
 
     return () => {
-      Notifications.removeNotificationSubscription(notificationListener.current!);
-      Notifications.removeNotificationSubscription(responseListener.current!);
+      unsubscribe()
     };
+
   }, []);
 
-  const linking = {
+  const linking: LinkingOptions<RootStackParamList> = {
     prefixes: [prefix],
     config: {
       screens: {
@@ -100,20 +60,46 @@ export default function App() {
           }
         }
       }
-    }
-  }
-  console.log(prefix)
+    },
+    getInitialURL: async () => {
+      const url = await Linking.getInitialURL();
+      if (url != null) {
+        return url;
+      }
+      const message = await messaging().getInitialNotification();
+      // const deeplinkURL = buildDeepLinkFromNotificationData(message?.data);
+      console.log(message);
+      if (message?.data?.link) {
+        return message.data.link as string;
+      }
+    },
+    subscribe(listener) {
+      const onReceiveURL = ({ url }: { url: string }) => listener(url);
+      const eventListenerSubscription = Linking.addEventListener('url', onReceiveURL);
 
+      const unsubscribe = messaging().onNotificationOpenedApp(remoteMessage => {
+        // const url = buildDeepLinkFromNotificationData(remoteMessage.data)
+        const url = remoteMessage?.data?.link;
+        if (typeof url === 'string') {
+          listener(url)
+        }
+      });
+      return () => {
+        eventListenerSubscription.remove();
+        unsubscribe();
+      }
+    },
+  }
   return (
     <SafeAreaView style={{
       flex: 1
     }}>
-      <NavigationContainer linking={linking} >
+      <NavigationContainer linking={linking}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-            <AutocompleteDropdownContextProvider>
+
           <Layout />
-          </AutocompleteDropdownContextProvider>
+
         </AuthProvider>
       </QueryClientProvider>
     </NavigationContainer>

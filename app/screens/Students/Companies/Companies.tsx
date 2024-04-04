@@ -1,26 +1,33 @@
 import { StyleSheet, Text, View, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
 import { Card, SearchBar } from '@rneui/base';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import useAxiosPrivate from '../../../utils/axiosPrivate';
 import { DrawerScreenProps } from '@react-navigation/drawer';
 import { useDebounce } from '@uidotdev/usehooks';
+import { FlashList } from '@shopify/flash-list';
 
 const Companies = ({ navigation, route }: DrawerScreenProps<StudentDrawerParamList, 'Companies'>) => {
     const [search, setSearch] = useState('');
     const deferredSearch = useDebounce(search, 2000);
     const api = useAxiosPrivate();
 
-    const { data, isLoading, isSuccess, isError, refetch } = useQuery({
+    const { data, isLoading, isSuccess, isError, refetch, fetchNextPage, isRefetching } = useInfiniteQuery({
         queryKey: ['fetchCompanies', deferredSearch],
-        queryFn: (): Promise<CompaniesPageResponseType> =>
-            api
-                .get('/student/companies', {
+        queryFn: ({ pageParam }): Promise<CompaniesPageResponseType> =>
+        (api.get('/student/companies', {
                     params: {
                         s: deferredSearch,
+                page: pageParam
                     },
                 })
-                .then((res) => res.data.companies),
+            .then((res) => res.data.companies)),
+        getNextPageParam: (lastPage) => {
+            if (lastPage.metadata.page < lastPage.metadata.pageCount)
+                return lastPage.metadata.page + 1
+            return undefined;
+        },
+        initialPageParam: 1
     });
 
     if (isSuccess)
@@ -30,29 +37,42 @@ const Companies = ({ navigation, route }: DrawerScreenProps<StudentDrawerParamLi
                     value={search}
                     onChangeText={setSearch}
                     placeholder="Enter Company Name...."
-                    containerStyle={styles.searchBarContainer}
+                    containerStyle={[styles.searchBarContainer, {
+                        borderColor: 'white'
+                    }]}
                     inputStyle={styles.searchInput}
-                    placeholderTextColor="#a8a8a8" // Placeholder text color
+                    placeholderTextColor="#A9A9A9"
+                    inputContainerStyle={{
+                        backgroundColor: 'white',
+                    }}
+                    label="Search Company"
+                    labelStyle={{
+
+                    }}
+                    // Placeholder text color
                 />
-                <ScrollView
-                    style={styles.scrollView}
-                    refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} />}
-                >
-                    {data.data.map((company, index) => (
+                <FlashList
+                    onRefresh={refetch}
+                    refreshing={isRefetching}
+                    estimatedItemSize={100}
+                    data={data.pages.flatMap((page, index) => page.data)}
+                    onEndReached={fetchNextPage}
+                    onEndReachedThreshold={1}
+                    renderItem={({ item, index }) => (
                         <TouchableOpacity
                             key={index}
                             onPress={() => {
                                 navigation.navigate('Company', {
-                                    company_id: company._id,
+                                    company_id: item._id,
                                 });
                             }}
                         >
                             <Card>
-                                <Text style={styles.companyName}>{company.company_name}</Text>
+                                <Text style={styles.companyName}>{item.company_name}</Text>
                             </Card>
                         </TouchableOpacity>
-                    ))}
-                </ScrollView>
+                    )}
+                />
             </View>
         );
 

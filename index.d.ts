@@ -141,7 +141,8 @@ type TPODrawerParamList = {
   "Post Update": {
     drive_id: string;
     company_name: string;
-  }
+  };
+  Companies:undefined;
 
 };
 

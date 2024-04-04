@@ -12,6 +12,7 @@ import { Icon } from '@rneui/themed';
 import LogoutButton from '../../components/LogoutButton/LogoutButton';
 import Drive from './Drive/Drive';
 import PostUpdate from './PostUpdate/PostUpdate';
+import Company from './Companies/Companies';
 
 const TPODrawerNavigator = createDrawerNavigator<TPODrawerParamList>();
 
@@ -39,7 +40,7 @@ const TPOLayout = () => {
             >
                 <TPODrawerNavigator.Screen name='Home' component={TPODashboard}
                     options={{
-                        unmountOnBlur: true
+
                     }}
                 />
                 <TPODrawerNavigator.Screen name='Add Student' component={AddStudent} options={{
@@ -50,19 +51,22 @@ const TPOLayout = () => {
                         unmountOnBlur: true
                     }}
                 />
-                <TPODrawerNavigator.Screen name='Add Drive' component={AddDrive}
-                    options={{
-                        unmountOnBlur: true
-                    }}
+
+                <TPODrawerNavigator.Screen name='Companies'
+                    component={Company}
                 />
                 <TPODrawerNavigator.Screen name='Ongoing Drives' component={OngoingDrives} />
                 <TPODrawerNavigator.Screen name='Profile' component={Profile} />
-
                 <TPODrawerNavigator.Group screenOptions={{
                     drawerItemStyle: {
                         display: 'none'
                     },
                 }}>
+                    <TPODrawerNavigator.Screen name='Add Drive' component={AddDrive}
+                        options={{
+                            unmountOnBlur: true
+                        }}
+                    />
                     <TPODrawerNavigator.Screen name="Drive" component={Drive}
                         options={{
                             unmountOnBlur: true

@@ -1,24 +1,18 @@
 import { StyleSheet, TouchableOpacity, View, Dimensions, TextInput } from 'react-native'
-import React, { useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Button, CheckBox, Icon, Input, Text } from '@rneui/themed'
-import * as Yup from 'yup';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import useAxiosPrivate from '../../../utils/axiosPrivate'
-import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown'
 import { useDebounce } from '@uidotdev/usehooks'
 import { DrawerScreenProps } from '@react-navigation/drawer'
-import { ToastAndroid } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Dropdown } from 'react-native-element-dropdown';
+
 
 
 
 interface AddDriveValues {
-    company_id: string,
-    company_name: string;
     tier: number | null;
     job_title: string,
     job_description: string,
@@ -58,16 +52,6 @@ interface CompanyOptionsResponseType {
     data: Array<CompaniesProps>
 }
 
-const validationSchema = Yup.object({
-    // company_id: Yup.string().required("Required"),
-    // job_title: Yup.string().required("Required"),
-    // job_description: Yup.string().required("Required"),
-    // job_ctc: Yup.string().required("Required"),
-    // tenth_cutoff: Yup.number().min(0).max(100).typeError("Must be a number"),
-    // twelfth_cutoff: Yup.number().min(0).max(100).typeError("Must be a number"),
-    // ug_cgpa: Yup.number().min(0).max(10).typeError("Must be a number"),
-
-})
 
 const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">) => {
     const api = useAxiosPrivate();
@@ -83,82 +67,21 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
 
     const { control, handleSubmit, setValue } = useForm<AddDriveValues>();
 
-    const { data, isLoading, fetchNextPage, fetchPreviousPage } = useInfiniteQuery({
-        queryKey: ["fetchCompanies", s],
-        queryFn: ({ pageParam }): Promise<CompanyOptionsResponseType> => (
-            api.get('/common/options/companies', {
-                params: {
-                    s: s,
-                    page: pageParam
-                }
-            }).then(res => res.data.companies)
-        ),
-        getNextPageParam: (lastPage) => {
-
-            if (lastPage.metadata.page < lastPage.metadata.pageCount)
-                return lastPage.metadata.page + 1;
-            return undefined;
-        },
-        initialPageParam: 1,
-        getPreviousPageParam: (lastPage) => {
-            if (lastPage.metadata.page > 1)
-                return lastPage.metadata.page - 1;
-            return undefined;
-        },
-        maxPages: 5
-    });
-    const searchRef = useRef(null)
-    const dropdownController = useRef<any>(null)
-    // const [file, setFile] = useState<DocumentPicker.DocumentPickerAsset>();
 
     const onSubmit = (data: AddDriveValues) => {
         console.log(data);
-        api.post('tpo/drives', data).then((res) => {
-            if (res.status == 200) {
-                ToastAndroid.show("Drive added successfully", ToastAndroid.SHORT);
-            }
-        }).catch((err) => { console.log(err) })
+        // api.post('tpo/drives', data).then((res) => {
+        //     if (res.status == 200) {
+        //         ToastAndroid.show("Drive added successfully", ToastAndroid.SHORT);
+        //     }
+        // }).catch((err) => { console.log(err) })
     }
-
+    const [open, setOpen] = useState(false);
     return (
         <KeyboardAwareScrollView enableOnAndroid >
             <View style={{
                 backgroundColor: 'white'
             }}>
-                <View style={{
-                    zIndex: 1
-                }}>
-                    <Text >Select Company Name</Text>
-                    <Controller
-                        name='company_name'
-                        control={control}
-                        render={({ field: { value, }, fieldState: { error } }) => (
-                            <Dropdown
-                                data={data?.pages.flatMap((page) => page.data)!}
-                                labelField={'title'}
-                                valueField={'id'}
-                                searchField={'title'}
-                                onChangeText={setSearch}
-                                value={value}
-                                search
-                                onChange={(item) => {
-                                    item && setValue('company_id', item.id);
-                                    item && setValue('company_name', item.title);
-                                }}
-                                flatListProps={{
-                                    onEndReached: () => {
-                                        fetchNextPage();
-                                    },
-                                    onStartReached: () => {
-                                        fetchPreviousPage();
-                                    },
-                                    onEndReachedThreshold: 1,
-                                    onStartReachedThreshold: 1
-                                }}
-                            />)}
-                    />
-                </View>
-
                 <Controller
                     name='job_title'
                     control={control}

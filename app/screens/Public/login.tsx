@@ -21,22 +21,17 @@ const Login = ({ navigation }: StackScreenProps<RootStackParamList, 'Login'>) =>
     const [role, setRole] = useState<string>('student');
     const { setAuthState } = useAuth();
     const { handleSubmit, control, resetField } = useForm<LoginFormValues>();
-
+    const [error, setError] = useState<string>('');
     const onSubmit = async (data: LoginFormValues) => {
-
-        console.log(data);
-
-
+        setError('');
         await api.post('/login', data).then((res) => {
             if (res.status == 200) {
                 save('refresh_token', `${res.data?.refresh_token}`);
                 setAuthState({ access_token: res.data?.access_token, role: res.data?.role })
             }
         }).catch((error) => {
-            console.log(error);
             if (error.response) {
-                if (error.response.status == 401) {
-                }
+                setError(error.response.data.message);
             }
         })
     }
@@ -180,6 +175,10 @@ const Login = ({ navigation }: StackScreenProps<RootStackParamList, 'Login'>) =>
                     secureTextEntry={true}
                 />)}
             />
+            {error && <Text style={{
+                marginHorizontal: 10,
+                color: 'red'
+            }}>{error}</Text>}
             <Button
                 onPress={handleSubmit(onSubmit)}
                                     type="solid"

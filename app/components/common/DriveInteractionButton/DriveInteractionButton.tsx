@@ -1,13 +1,19 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '@rneui/themed';
+import useAxiosPrivate from '../../../utils/axiosPrivate';
 
 interface Props {
     registered: boolean;
     eligible: boolean;
+    drive_id: string;
 }
 
-const DriveInteractionButton = ({ registered, eligible }: Props) => {
+const DriveInteractionButton = ({ registered, eligible, drive_id }: Props) => {
+
+
+    const api = useAxiosPrivate();
+
     if (!eligible) {
         return (
             <Button
@@ -15,35 +21,39 @@ const DriveInteractionButton = ({ registered, eligible }: Props) => {
                 buttonStyle={styles.button}
                 titleStyle={styles.title}
                 disabled
+                containerStyle={{
+
+                }}
             >
                 Not Eligible
             </Button>
         );
     }
 
-    if (!registered) {
+    if (registered) {
         return (
             <Button
-                buttonStyle={styles.registerButton}
+                buttonStyle={styles.registeredButton}
                 titleStyle={styles.title}
-                onPress={() => {
-                    console.log('pressed');
-                }}
+                disabled
             >
-                Register
+                Already Registered
             </Button>
         );
     }
 
     return (
         <Button
-            buttonStyle={styles.registeredButton}
+            buttonStyle={styles.registerButton}
             titleStyle={styles.title}
-            disabled
+            onPress={() => {
+
+            }}
         >
-            Already Registered
+            Register
         </Button>
     );
+
 };
 
 const styles = StyleSheet.create({

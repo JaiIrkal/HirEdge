@@ -1,16 +1,21 @@
-import { StyleSheet, Text, View, ActivityIndicator, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator, ScrollView, TouchableOpacity, Dimensions, useWindowDimensions } from 'react-native';
 import React from 'react';
 import useAxiosPrivate from '../../../utils/axiosPrivate';
-import { useQuery } from '@tanstack/react-query';
-import { Card } from '@rneui/themed';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { Card, Input } from '@rneui/themed';
 import { DrawerScreenProps } from '@react-navigation/drawer';
+import { FlatList } from 'react-native-gesture-handler';
+import DriveInteractionButton from '../../../components/common/DriveInteractionButton/DriveInteractionButton';
+import CompanyTierIcon from '../../../components/common/CompanyTierIcon/CompanyTierIcon';
 
 const screenWidth = Dimensions.get('window').width;
 
 const OngoingDrives = ({ navigation }: DrawerScreenProps<StudentDrawerParamList, 'Ongoing Drives'>) => {
     const api = useAxiosPrivate();
 
-    const result = useQuery({
+    const { height, width } = useWindowDimensions();
+
+    const { data, isLoading, isSuccess, isError, hasNextPage, fetchNextPage, } = useInfiniteQuery({
         queryKey: ["fetchOngoingPlacements"],
         queryFn: async (): Promise<StudentOngoingDriveResponseType> => {
             const response = await api.get('/student/drives', {
@@ -21,35 +26,92 @@ const OngoingDrives = ({ navigation }: DrawerScreenProps<StudentDrawerParamList,
                 }
             });
             return response.data.drives;
+        },
+        initialPageParam: 1,
+        getNextPageParam: (lastPage) => {
+            if (lastPage.metadata.page < lastPage.metadata.pageCount)
+                return lastPage.metadata.page + 1;
+            return undefined;
+        },
+        getPreviousPageParam: (lastPage) => {
+            if (lastPage.metadata.page > 1)
+                return lastPage.metadata.page - 1;
+            return undefined;
         }
+
+
     });
 
-    if (result.isLoading)
+    if (isError) {
+        return (
+            <View>
+                <Text>Loading...</Text>
+            </View>
+        )
+    }
+
+
+    if (isLoading)
         return (
             <View style={styles.container}>
                 <ActivityIndicator size="large" color="#0000ff" />
             </View>
         );
 
-    if (result.isSuccess)
+    if (isSuccess)
         return (
             <View style={styles.container}>
-                <ScrollView contentContainerStyle={styles.scrollView}>
-                    {result.data.data.map((drive, index) => (
-                        <TouchableOpacity
-                            key={index}
-                            onPress={() => navigation.navigate('Drive', { drive_id: drive._id })}
-                            style={styles.cardContainer}
-                        >
-                            <Card style={styles.card}>
-                                <Card.Title style={styles.title}>{drive.company_name}</Card.Title>
-                                <Card.Divider />
-                                <Text style={styles.text}>Role: {drive.job_title}</Text>
-                                <Text style={styles.text}>CTC: {drive.job_ctc}</Text>
-                            </Card>
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
+
+                <Input
+                    placeholder='Enter Company Name'
+                    label="Company Name"
+                />
+                <View style={{
+                    flex: 1
+                }}>
+                    <FlatList
+                        data={data.pages.flatMap(page => page.data)}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity onPress={() => {
+                                navigation.navigate('Drive', {
+                                    drive_id: item._id,
+                                });
+                            }}>
+                                <View style={{
+                                    borderWidth: 1,
+                                    borderColor: 'grey',
+                                    padding: 5,
+                                    shadowColor: 'gray',
+                                    shadowOffset: { width: 0, height: 0 },
+                                    shadowOpacity: 3,
+                                    shadowRadius: 10,
+                                    elevation: 3,
+                                    borderRadius: 5,
+                                    flexDirection: 'row',
+                                    columnGap: 5
+                                }}>
+                                    <View>
+                                        <CompanyTierIcon tier={item.tier} size={height * 0.08} />
+                                    </View>
+                                    <View style={{}}>
+                                        <Text style={{ fontSize: 20, fontWeight: 'bold' }}>{item.company_name}</Text>
+                                        <Text style={{
+                                            fontWeight: '700'
+                                        }}>{item.job_title}</Text>
+                                        <Text>{item.job_ctc}</Text>
+                                    </View>
+                                    <View>
+                                        {!item.eligible && <Text style={{ color: 'red', alignSelf: 'center' }}>Not Eligible</Text>}
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        )}
+                        keyExtractor={(item) => item._id}
+                        contentContainerStyle={{
+                            flex: 1,
+                        }}
+                    />
+                </View>
             </View>
         );
 
@@ -59,8 +121,8 @@ const OngoingDrives = ({ navigation }: DrawerScreenProps<StudentDrawerParamList,
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        padding: 5,
+        backgroundColor: 'white'
     },
     scrollView: {
         flexGrow: 1,

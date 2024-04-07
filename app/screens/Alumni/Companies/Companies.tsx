@@ -5,9 +5,10 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import useAxiosPrivate from '../../../utils/axiosPrivate';
 import { DrawerScreenProps } from '@react-navigation/drawer';
 import { useDebounce } from '@uidotdev/usehooks';
+import { AlumniDrawerParamList } from '../../../utils/Navigation/types';
 
 
-const Companies = () => {
+const Companies = ({ route, navigation }: DrawerScreenProps<AlumniDrawerParamList, "Companies">) => {
     const [search, setSearch] = useState('');
     const deferredSearch = useDebounce(search, 2000);
     const api = useAxiosPrivate();
@@ -66,9 +67,9 @@ const Companies = () => {
                         <TouchableOpacity
                             key={index}
                             onPress={() => {
-                                // navigation.navigate('Company', {
-                                //     company_id: item._id,
-                                // });
+                                navigation.navigate('Company', {
+                                    company_id: item._id,
+                                });
                             }}
                         >
                             <Card>

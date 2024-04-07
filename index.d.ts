@@ -97,6 +97,12 @@ type ManageDriveDataType = {
     registered: boolean;
     eligible: boolean;
     tier: number;
+    updates: Array<{
+      type: string;
+      postedon: EpochTimeStamp;
+      description: string;
+      student_list?: Array<string>
+    }>
   }
 
   //route types
@@ -186,12 +192,15 @@ type StudentDriveListType= {
   job_ctc: string;
   company_name: string;
   eligible: boolean;
+  tier: number;
+  registered: boolean;
 }
 
 type StudentOngoingDriveResponseType = {
     metadata: {
       totalCount: number;
       pageCount: number;
+      page: number;
     };
     data: Array<StudentDriveListType>
 }

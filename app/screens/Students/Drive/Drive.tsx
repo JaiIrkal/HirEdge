@@ -15,18 +15,22 @@ const DrivePage = ({ route, navigation }: DrawerScreenProps<StudentDrawerParamLi
         queryKey: ['fetchDrive', drive],
         queryFn: async (): Promise<DriveStudentDataType> => (
             api.get(`/student/drive/${drive}`).then(res => res.data)
-        )
+        ),
+        staleTime: 30000
     });
 
     return (
         <View style={styles.container}>
             <ScrollView
-                contentContainerStyle={styles.contentContainer}
+                contentContainerStyle={{
+                    minHeight: "100%"
+                }}
                 refreshControl={<RefreshControl refreshing={result.isLoading} onRefresh={result.refetch} />}
             >
                 <View style={styles.box}>
                     {result.isSuccess && (
-                        <>
+                        <View style={{ flex: 1, justifyContent: 'space-between', flexDirection: 'column' }}>
+                            <View style={{ flex: 1 }}>
                             <Text style={styles.companyName} h2>{result.data?.company_details.company_name}</Text>
                             <Text h4> Tier - {result.data.tier}</Text>
                             <Text h4>Company Website: {result.data?.company_details.company_website}</Text>
@@ -48,32 +52,44 @@ const DrivePage = ({ route, navigation }: DrawerScreenProps<StudentDrawerParamLi
                                         <Text key={index} style={styles.jobLocation}>{city}</Text>
                                     ))}
                                 </View>
-                            </View>
-
+                                </View>
                             <Text h4>Job Description</Text>
                             <Text style={styles.jobDescription}>{result.data.job_description}</Text>
+                                <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Updates</Text>
 
+                                <View>
+                                    {
+                                        result.data.updates.map((update, index) => (
+                                            <View key={index}>
+                                                {/* <Text style={{ textTransform: 'capitalize' }}> {update.type}</Text> */}
+                                                {/* <Text>{update.description}</Text>
+
+                                                <></> */}
+                                            </View>))
+                                    }
+                                </View>
+
+                            </View>
                             <View style={styles.buttonsContainer}>
 
-                                <DriveInteractionButton eligible={false} registered={false} />
+                                <DriveInteractionButton eligible={result.data.eligible} registered={result.data.registered} drive_id={result.data._id} />
 
                                 <Button
-                                    title="Know More about Company"
+                                    title="Company Info"
                                     onPress={() => {
                                         navigation.navigate('Company', {
                                             company_id: result.data.company_details._id
                                         });
                                     }}
-                                    titleStyle={[styles.buttonTitle, {
-
-                                    }]}
-                                    buttonStyle={[styles.knowMoreButton, {
-
-                                    }]}
-
+                                    titleStyle={{
+                                        fontSize: 20
+                                    }}
+                                    buttonStyle={{
+                                        backgroundColor: "#107387"
+                                    }}
                                 />
                             </View>
-                        </>
+                        </View>
                     )}
                 </View>
             </ScrollView>
@@ -90,6 +106,7 @@ const styles = StyleSheet.create({
         flexGrow: 1,
     },
     box: {
+        flex: 1,
         borderWidth: 1,
         borderColor: '#CCCCCC',
         borderRadius: 10,
@@ -104,15 +121,15 @@ const styles = StyleSheet.create({
         color: '#107387',
     },
     eligibilityTitle: {
-        marginTop: 20,
-        marginBottom: 30, // Increased space between each line
+        marginTop: 10,
+        marginBottom: 5, // Increased space between each line
         color: '#107387',
     },
     eligibilityContainer: {
-        marginBottom: 50, // Increased space between each line
+        marginBottom: 10, // Increased space between each line
     },
     jobLocationsContainer: {
-        marginBottom: 50, // Increased space between each line
+        marginBottom: 10, // Increased space between each line
     },
     jobLocations: {
         flexDirection: 'row',
@@ -126,7 +143,7 @@ const styles = StyleSheet.create({
     },
     jobDescription: {
         fontSize: 16,
-        marginBottom: 90, // Increased space between each line
+        marginBottom: 0, // Increased space between each line
         color: '#333333',
     },
     buttonsContainer: {

@@ -11,3 +11,12 @@ export type StudentProfileDataType = {
     twelfth_percentage: string;
     ug_cgpa: string;
 }
+
+
+export type AlumniCompanyData = {
+    _id: string;
+    company_name: string;
+    company_website: string;
+
+    placements: Array<any>;
+}

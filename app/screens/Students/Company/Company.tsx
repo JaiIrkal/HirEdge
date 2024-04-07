@@ -3,8 +3,8 @@ import { Linking, StyleSheet, View, ScrollView, ToastAndroid } from 'react-nativ
 import { useQuery } from '@tanstack/react-query';
 import useAxiosPrivate from '../../../utils/axiosPrivate';
 import { Text, FAB } from '@rneui/base';
-import InterviewExperiences from '../InterviewExperiences/InterviewExperiences';
 import { DrawerScreenProps } from '@react-navigation/drawer';
+import Experiences from './Experiences';
 
 const Company = ({ navigation, route }: DrawerScreenProps<StudentDrawerParamList, "Company">) => {
     const company_id = route.params.company_id;
@@ -20,7 +20,7 @@ const Company = ({ navigation, route }: DrawerScreenProps<StudentDrawerParamList
     if (isSuccess) {
         return (
             <View style={styles.container}>
-                <ScrollView>
+                <View>
                     <Text h1 style={styles.companyName}>{data?.company_name}</Text>
                     <View style={styles.websiteContainer}>
                         <Text style={styles.websiteLabel}>Company Website:</Text>
@@ -33,9 +33,9 @@ const Company = ({ navigation, route }: DrawerScreenProps<StudentDrawerParamList
                     </View>
                     <Text style={styles.sectionTitle}>Interview Experiences</Text>
                     <View style={styles.interviewExperiencesContainer}>
-                        <InterviewExperiences company_id={company_id} />
+                        <Experiences company_id={company_id} />
                     </View>
-                </ScrollView>
+                </View>
                 <FAB
                     title="Share Experience"
                     icon={{ name: 'add' }}

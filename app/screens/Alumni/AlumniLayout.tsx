@@ -8,8 +8,12 @@ import { Icon } from '@rneui/themed';
 import LogoutButton from '../../components/LogoutButton/LogoutButton';
 import Companies from './Companies/Companies';
 import Profile from './Profile/Profile';
+import ShareExperience from './ShareExperience/ShareExperience';
 
-const Drawer = createDrawerNavigator();
+import { AlumniDrawerParamList } from '../../utils/Navigation/types';
+import Company from './Company/Company';
+
+const Drawer = createDrawerNavigator<AlumniDrawerParamList>();
 
 const AlumniLayout = () => {
     return (
@@ -19,7 +23,7 @@ const AlumniLayout = () => {
                     fontSize: 20
                 }
             }}
-
+            initialRouteName='Profile'
             drawerContent={(props) => (<SafeAreaView style={{
                 flex: 1
             }}
@@ -47,6 +51,23 @@ const AlumniLayout = () => {
             <Drawer.Screen name='Profile' component={Profile} options={{
                 drawerIcon: (props) => (<Icon name='account-circle' color={props.color} />)
             }} />
+
+            <Drawer.Group screenOptions={{
+                drawerItemStyle: {
+                    display: 'none'
+                }
+            }} >
+                <Drawer.Screen name='Share Experience' component={ShareExperience}
+                    options={{
+                        unmountOnBlur: true
+                    }}
+
+                />
+
+                <Drawer.Screen name='Company' component={Company} options={{
+                    unmountOnBlur: true
+                }} />
+            </Drawer.Group>
 
         </Drawer.Navigator>
     )

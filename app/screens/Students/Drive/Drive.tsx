@@ -28,6 +28,7 @@ const DrivePage = ({ route, navigation }: DrawerScreenProps<StudentDrawerParamLi
                     {result.isSuccess && (
                         <>
                             <Text style={styles.companyName} h2>{result.data?.company_details.company_name}</Text>
+                            <Text h4> Tier - {result.data.tier}</Text>
                             <Text h4>Company Website: {result.data?.company_details.company_website}</Text>
                             <Text h4>Job Title: {result.data?.job_title}</Text>
                             <Text h4>CTC: {result.data.job_ctc}</Text>

@@ -96,6 +96,7 @@ type ManageDriveDataType = {
     company_details: Omit<CompanyDetails,"placements">
     registered: boolean;
     eligible: boolean;
+    tier: number;
   }
 
   //route types

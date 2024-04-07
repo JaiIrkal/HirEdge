@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity, View, Dimensions, TextInput } from 'react-native'
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Button, CheckBox, Icon, Input, Text } from '@rneui/themed'
 import useAxiosPrivate from '../../../utils/axiosPrivate'
@@ -69,7 +69,10 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
 
 
     const onSubmit = (data: AddDriveValues) => {
-        console.log(data);
+        console.log({
+            company_id: route.params.company_id,
+            company_name: route.params.company_name, ...data
+        });
         // api.post('tpo/drives', data).then((res) => {
         //     if (res.status == 200) {
         //         ToastAndroid.show("Drive added successfully", ToastAndroid.SHORT);
@@ -77,11 +80,15 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
         // }).catch((err) => { console.log(err) })
     }
     const [open, setOpen] = useState(false);
+
+    const richText = useRef();
+
     return (
         <KeyboardAwareScrollView enableOnAndroid >
             <View style={{
                 backgroundColor: 'white'
             }}>
+                <Text style={{ fontSize: 20, color: 'black' }}>Company Name : {route.params.company_name}</Text>
                 <Controller
                     name='job_title'
                     control={control}
@@ -145,6 +152,8 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
 
                 <Text>Branch</Text>
 
+                <View style={{ flex: 1, flexWrap: 'wrap', flexDirection: 'row', justifyContent: 'space-between' }}>
+
                 <Controller
                     name='branch.CSE'
                     control={control}
@@ -153,6 +162,7 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
                             checked={value}
                             title={"CSE"}
                             onPress={() => { onChange(!value) }}
+                            wrapperStyle={styles.checkboxWrapper}
                         />
                     )}
                 />
@@ -164,6 +174,7 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
                             checked={value}
                             title={"ISE"}
                             onPress={() => { onChange(!value) }}
+                            wrapperStyle={styles.checkboxWrapper}
                         />
                     )}
                 />
@@ -175,6 +186,7 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
                             checked={value}
                             title={"ECE"}
                             onPress={() => { onChange(!value) }}
+                            wrapperStyle={styles.checkboxWrapper}
                         />
                     )}
                 />
@@ -186,6 +198,7 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
                             checked={value}
                             title={"EEE"}
                             onPress={() => { onChange(!value) }}
+                            wrapperStyle={styles.checkboxWrapper}
                         />
                     )}
                 />
@@ -197,6 +210,7 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
                             checked={value}
                             title={"MECH"}
                             onPress={() => { onChange(!value) }}
+                            wrapperStyle={styles.checkboxWrapper}
                         />
                     )}
                 />
@@ -208,6 +222,7 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
                             checked={value}
                             title={"CIVIL"}
                             onPress={() => { onChange(!value) }}
+                            wrapperStyle={styles.checkboxWrapper}
                         />
                     )}
                 />
@@ -219,9 +234,11 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
                             checked={value}
                             title={"CHEM"}
                             onPress={() => { onChange(!value) }}
+                            wrapperStyle={styles.checkboxWrapper}
                         />
                     )}
                 />
+                </View>
 
                 <Controller
                     name='tenth_cutoff'
@@ -255,6 +272,7 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
                             inputMode='decimal'
                             keyboardType='decimal-pad'
                             onChangeText={onChange}
+                            placeholder='Enter 12th cutoff percentage'
                         // errorMessage={errors.twelfth_cutoff}
                         // leftIcon={<TouchableOpacity onPress={() => {
                         //     setFieldValue('twelfth_cutoff', values.twelfth_cutoff - 1)
@@ -368,6 +386,7 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
                                     textAlignVertical: 'bottom'
                                 }}
                             />
+
                         )}
                     />
                 </ScrollView>
@@ -384,5 +403,8 @@ export default AddDrive
 const styles = StyleSheet.create({
     errorMessageStyle: {
         color: 'red'
+    },
+    checkboxWrapper: {
+        width: 80
     }
 })

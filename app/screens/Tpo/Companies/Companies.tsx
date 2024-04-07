@@ -1,13 +1,13 @@
-import { StyleSheet, Text, useWindowDimensions, View } from 'react-native'
-import React, { useState } from 'react'
+import { ActivityIndicator, StyleSheet, Text, useWindowDimensions, View, VirtualizedList } from 'react-native'
+import React, { useCallback, useState } from 'react'
 // import { FlashList } from '@shopify/flash-list'
-import { Input } from '@rneui/themed'
+import { Button, Input } from '@rneui/themed'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import useAxiosPrivate from '../../../utils/axiosPrivate'
 import { useDebounce } from '@uidotdev/usehooks'
-// import { FlatList } from 'react-native-gesture-handler'
-import { FlashList } from '../../../components/FlashList/FlashList'
-
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
+import { DrawerScreenProps } from '@react-navigation/drawer'
+import { FontAwesome } from '@expo/vector-icons';
 
 type CompanyListResponseType = {
     metadata: {
@@ -17,19 +17,18 @@ type CompanyListResponseType = {
     },
     data: Array<{
         company_name: string;
-        id: string;
+        _id: string;
     }>
 }
 
 
-const Company = () => {
+const Company = ({ route, navigation }: DrawerScreenProps<TPODrawerParamList, "Companies">) => {
 
     const api = useAxiosPrivate()
     const { width, height } = useWindowDimensions()
     const [search, setSearch] = useState('');
-    const s = useDebounce(search, 3000);
-
-    const { data, isLoading, isSuccess, fetchNextPage, fetchPreviousPage, isError, refetch, isRefetching, hasNextPage, hasPreviousPage } = useInfiniteQuery({
+    const s = useDebounce(search, 5000);
+    const { data, isLoading, isSuccess, fetchNextPage, fetchPreviousPage, isError, refetch, isRefetching, hasNextPage, hasPreviousPage, isFetchingNextPage, isFetchingPreviousPage, } = useInfiniteQuery({
         queryKey: ['fetchCompanies', s],
         queryFn: ({ pageParam }): Promise<CompanyListResponseType> => (
             api.get('/common/options/companies', {
@@ -40,7 +39,7 @@ const Company = () => {
             }).then(res => res.data.companies)
         ),
         initialPageParam: 1,
-        maxPages: 5,
+        maxPages: 10,
         getNextPageParam: (lastPage) => {
             if (lastPage.metadata.page < lastPage.metadata.pageCount)
                 return lastPage.metadata.page + 1;
@@ -50,54 +49,111 @@ const Company = () => {
             if (lastpage.metadata.page > 1)
                 return lastpage.metadata.page - 1;
             return undefined;
-        }
+        },
     })
 
+    const renderItem = useCallback(({ item }: { item: { company_name: string; _id: string } }) => (
+        <View style={{
+            width: width * 0.95,
+            height: height * 0.1,
+            borderColor: 'grey',
+            borderWidth: 1,
+            borderRadius: 20,
+            padding: 10,
+            backgroundColor: '#ffffff',
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+        }}>
+            <Text style={{ fontSize: 26 }}>{item.company_name}</Text>
+
+            <View style={{
+                flex: 1,
+                flexDirection: 'row',
+                justifyContent: 'flex-end',
+                columnGap: 4
+            }}>
+                <Button onPress={() => {
+                    navigation.navigate('Add Drive', {
+                        company_id: item._id,
+                        company_name: item.company_name,
+                    })
+                }} style={{
+
+                }}
+                    buttonStyle={{
+                        borderRadius: 20
+                    }}
+                > Add Drive</Button>
+                <Button onPress={() => {
+
+                }}
+                    buttonStyle={{
+                        borderRadius: 20
+                    }}
+                >View Company</Button>
+            </View>
+        </View>
+    ), [])
+
     return (
-        <View style={{ flex: 1, }}>
+        <View style={{ flex: 1, alignItems: 'center' }}>
 
 
             <Input
                 value={search}
                 onChangeText={setSearch}
-
-            />
-            <FlashList
-                pageInfo={{
-                    hasNextPage: hasNextPage,
-                    hasPreviousPage: hasPreviousPage
+                placeholder='Search Company...'
+                label="Company"
+                rightIcon={<FontAwesome name="search" size={24} color="black" onPress={() => { refetch() }} />}
+                onSubmitEditing={() => {
+                    refetch();
                 }}
-                estimatedItemSize={100}
+            />
+            {
+                isRefetching && <ActivityIndicator size="large" color="#0000ff" />
+            }
+            {
+                data?.pages.flatMap(page => page.data).length == 0 && <Text>No Company Found</Text>
+            }
+            <FlatList
                 data={data?.pages.flatMap(page => page.data)}
-                renderItem={({ item }) => {
-                    return (
-                        <View style={{
-                            width: width * 0.2,
-                            height: height * 0.1
-                        }}>
-                            <Text>
-                                {item.company_name}
-                            </Text>
-                        </View>
-
-                    )
+                renderItem={renderItem}
+                keyExtractor={(item) => (item._id)}
+                style={{
+                    marginHorizontal: 10
                 }}
-                onEndReached={async () => {
-                    fetchNextPage();
 
+                onStartReached={() => {
+                    if (hasPreviousPage)
+                        fetchPreviousPage();
                 }}
-                onEndReachedThreshold={0.5}
-                refreshing={isRefetching}
+                onStartReachedThreshold={1}
+                onEndReached={() => {
+                    if (hasNextPage)
+                        fetchNextPage();
+                }}
+                onEndReachedThreshold={1}
+
+                ListHeaderComponent={() => {
+                    if (isFetchingPreviousPage)
+                        return (<ActivityIndicator size={40} />);
+
+                    return null;
+                }}
+
+                ListFooterComponent={() => {
+                    if (isFetchingNextPage)
+                        return (<ActivityIndicator size={40} />)
+                    return null
+                }}
                 scrollEnabled
-                onStartReached={async () => {
-                    fetchPreviousPage()
-                }}
-                onStartReachedThreshold={0.5}
+                initialNumToRender={1}
+
+                refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
+
             />
-
-
-
-
         </View>
 
     )

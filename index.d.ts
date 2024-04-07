@@ -132,7 +132,10 @@ type TPODrawerParamList = {
   Home: undefined;
   "Add Student": undefined;
   "Add Company": undefined;
-  "Add Drive": undefined;
+  "Add Drive": {
+    company_id:string;
+    company_name: string;
+  };
   "Ongoing Drives": undefined;
   Profile: undefined;
   Drive: {
@@ -215,7 +218,7 @@ type DriveData = {
   tenth_cutoff: number;
   twelfth_cutoff: number;
   ug_cutoff?: any;
-  job_location: string[];
+  job_locations: string[];
   job_ctc: string;
   branch: string[];
   rounds: Round[];

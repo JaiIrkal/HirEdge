@@ -73,10 +73,10 @@ export const FlashList = React.forwardRef(
             data,
             enableAutoscrollToTop,
             onEndReached = () => Promise.resolve() as any,
-            onEndReachedThreshold = 10,
+            onEndReachedThreshold = 1,
             onScroll,
             onStartReached = () => Promise.resolve(),
-            onStartReachedThreshold = 10,
+            onStartReachedThreshold = 1,
             onLayout,
             onContentSizeChange,
         } = restProps;
@@ -214,6 +214,7 @@ export const FlashList = React.forwardRef(
                     {...restProps}
                     ref={ref}
                     progressViewOffset={50}
+                    initialScrollIndex={0}
                     onLayout={onLayoutSizeChange}
                     onContentSizeChange={realOnContentSizeChange}
                     onEndReached={null}

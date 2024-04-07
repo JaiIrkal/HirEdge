@@ -1,16 +1,14 @@
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, useWindowDimensions, View } from 'react-native'
 import React, { useState } from 'react'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import useAxiosPrivate from '../../../utils/axiosPrivate'
 import Loading from '../../../components/Loading/Loading'
-import { Card, Input } from '@rneui/themed'
+import { Card, Icon, Input } from '@rneui/themed'
 import { DrawerScreenProps } from '@react-navigation/drawer'
 import { useDebounce } from '@uidotdev/usehooks'
-import { FlashList } from '@shopify/flash-list'
-
 import { Text } from '@rneui/themed'
-import { Touchable } from 'react-native'
-import { TouchableHighlight, TouchableOpacity } from 'react-native-gesture-handler'
+import { FlatList, RefreshControl, TouchableOpacity } from 'react-native-gesture-handler'
+import CompanyTierIcon from '../../../components/common/CompanyTierIcon/CompanyTierIcon'
 
 
 interface TPODrivesResponseType {
@@ -41,7 +39,9 @@ const OngoingDrives = ({ navigation }: DrawerScreenProps<TPODrawerParamList, 'On
 
     const api = useAxiosPrivate();
 
-    const { data, isLoading, isSuccess, isError, refetch, fetchNextPage } = useInfiniteQuery({
+    const { width, height } = useWindowDimensions();
+
+    const { data, isLoading, isSuccess, isError, refetch, fetchNextPage, fetchPreviousPage, hasNextPage, hasPreviousPage, isRefetching } = useInfiniteQuery({
         queryKey: ["fetchTPOOngoingDrives", s],
         queryFn: ({ pageParam }): Promise<TPODrivesResponseType> => (
             api.get('/tpo/drives', {
@@ -76,7 +76,8 @@ const OngoingDrives = ({ navigation }: DrawerScreenProps<TPODrawerParamList, 'On
     return (
 
         <View style={{
-            flex: 1
+            flex: 1,
+            justifyContent: 'center'
         }}>
             <Input
                 value={search}
@@ -85,7 +86,7 @@ const OngoingDrives = ({ navigation }: DrawerScreenProps<TPODrawerParamList, 'On
                 placeholder='Search for Drives...'
             />
 
-            <FlashList
+            <FlatList
                 data={data.pages.flatMap((item) => { return item.data })}
                 scrollEnabled
                 renderItem={({ item }) => (
@@ -95,28 +96,43 @@ const OngoingDrives = ({ navigation }: DrawerScreenProps<TPODrawerParamList, 'On
                                 drive_id: item._id
                             })
                         }}
-                        pressRetentionOffset={0.5}
-                    >
-
-                        <Card>
-                            <Text>
-                                {item.company_name}
-                            </Text>
-                            <Text>
-                                {item.job_title}
-                            </Text>
-                            <Text>
-                                {item.job_ctc}
-                            </Text>
-                            <Text>
-                                { }
-                            </Text>
-                        </Card></TouchableOpacity>)}
-                estimatedItemSize={20}
-                refreshing={isLoading}
-                onRefresh={refetch}
+                        pressRetentionOffset={0}
+                    >   
+                        <View style={{
+                            height: height * 0.1,
+                            width: width * 0.95,
+                            alignItems: 'center',
+                            borderColor: 'gray',
+                            borderWidth: 1,
+                            borderRadius: 10,
+                            padding: 5,
+                            flexDirection: 'row'
+                        }}>
+                            <CompanyTierIcon tier={1} size={height * 0.07} style={{
+                                borderColor: 'black',
+                                borderWidth: 3,
+                                borderRadius: 10
+                            }} />
+                            <Text style={{
+                                fontSize: 20
+                            }}>{item.company_name}</Text>
+                        </View>
+                    </TouchableOpacity>)}
+                refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
                 onEndReachedThreshold={1}
-                onEndReached={fetchNextPage}
+                onEndReached={() => {
+                    if (hasNextPage)
+                        fetchNextPage()
+                }}
+                onStartReachedThreshold={1}
+                onStartReached={() => {
+                    if (hasPreviousPage)
+                        fetchPreviousPage();
+                }}
+                contentContainerStyle={{
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}
             />
         </View>
     )

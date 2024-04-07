@@ -4,17 +4,16 @@ import { useAuth } from "../../utils/AuthContext";
 import { StackScreenProps } from "@react-navigation/stack";
 import { SegmentedButtons } from "react-native-paper";
 import { useState } from "react";
-
 import { Controller, useForm } from "react-hook-form";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import React from "react";
-
 import { LoginFormValues } from "../../utils/FormTypes/types";
 import { Input, Button } from "@rneui/themed";
 import Footer from "../../components/footer/footer";
 import api from '../../utils/axios'
 import { save } from '../../utils/useSecureStore';
 import { Dropdown } from 'react-native-element-dropdown'
+import messaging from '@react-native-firebase/messaging';
 
 const Login = ({ navigation }: StackScreenProps<RootStackParamList, 'Login'>) => {
 
@@ -24,10 +23,13 @@ const Login = ({ navigation }: StackScreenProps<RootStackParamList, 'Login'>) =>
     const [error, setError] = useState<string>('');
     const onSubmit = async (data: LoginFormValues) => {
         setError('');
-        await api.post('/login', data).then((res) => {
+        await api.post('/login', data).then(async (res) => {
             if (res.status == 200) {
                 save('refresh_token', `${res.data?.refresh_token}`);
                 setAuthState({ access_token: res.data?.access_token, role: res.data?.role })
+                if (role === 'student') {
+                    await messaging().subscribeToTopic('NewDrive')
+                }
             }
         }).catch((error) => {
             if (error.response) {

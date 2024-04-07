@@ -1,12 +1,14 @@
-import { StyleSheet, Text, View, useWindowDimensions } from 'react-native'
+import { StyleSheet, Text, TouchableNativeFeedback, View, useWindowDimensions } from 'react-native'
 import React from 'react'
 import useAxiosPrivate from '../../../utils/axiosPrivate'
 import { FlashList } from '@shopify/flash-list';
 import { useQuery } from '@tanstack/react-query';
 
-import { Button, Card } from '@rneui/themed';
+import { Button, Card, Icon } from '@rneui/themed';
 import { DrawerScreenProps } from '@react-navigation/drawer';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { TouchableHighlight, TouchableOpacity } from 'react-native-gesture-handler';
+
 
 const OngoingDrivePanel = () => {
     const { width } = useWindowDimensions();
@@ -76,19 +78,32 @@ const OngoingDrivePanel = () => {
                 style={{
 
                 }}
-                ListFooterComponent={() => (<View style={{
-                    marginVertical: 0,
-                    width: width * 0.4,
-                    height: "100%",
-                    margin: 5,
-                    borderColor: 'black',
-                    borderWidth: 1,
-                    borderRadius: 20,
-                    padding: 10,
-                    backgroundColor: '#ffffff',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}><Text>{"Show More"}</Text></View>)}
+                ListFooterComponent={() => (<TouchableOpacity
+                    pressRetentionOffset={0}
+                    onPress={() => {
+                        navigation.navigate('Ongoing Drives')
+                    }}
+
+                    style={{
+                        marginVertical: 0,
+                        width: width * 0.4,
+                        height: "100%",
+                        margin: 5,
+                        padding: 10,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}><>
+                        <Icon name='rightcircleo' type='antdesign' />
+                        <Button
+                            iconRight
+
+                            type='clear'
+                            titleStyle={{
+                                color: 'darkblue',
+                                fontWeight: '900'
+                            }}
+                        >Show More..</Button></>
+                </TouchableOpacity>)}
 
             />
         )

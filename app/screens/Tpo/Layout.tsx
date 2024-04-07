@@ -54,6 +54,9 @@ const TPOLayout = () => {
 
                 <TPODrawerNavigator.Screen name='Companies'
                     component={Company}
+                    options={{
+                        unmountOnBlur: true
+                    }}
                 />
                 <TPODrawerNavigator.Screen name='Ongoing Drives' component={OngoingDrives} />
                 <TPODrawerNavigator.Screen name='Profile' component={Profile} />
@@ -73,8 +76,9 @@ const TPOLayout = () => {
                         }}
                     />
                     <TPODrawerNavigator.Screen name="Post Update" component={PostUpdate}
+
                         options={{
-                            unmountOnBlur: true
+                            unmountOnBlur: true,
                         }}
                     />
 

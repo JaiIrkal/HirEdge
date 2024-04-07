@@ -33,16 +33,9 @@ messaging().setBackgroundMessageHandler(async remoteMessage => {
 
 export default function App() {
   useEffect(() => {
-    messaging().getToken().then((token) => {
-      console.log(token);
-    })
-
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       Alert.alert('A new FCM message', JSON.stringify(remoteMessage));
     });
-
-
-
     return () => {
       unsubscribe()
     };
@@ -57,6 +50,11 @@ export default function App() {
           screens: {
             Profile: 'student/Profile',
             Drive: 'student/drive/:drive_id'
+          }
+        },
+        tpo: {
+          screens: {
+            Profile: 'tpo/profile'
           }
         }
       }
@@ -96,10 +94,8 @@ export default function App() {
     }}>
       <NavigationContainer linking={linking}>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-
-          <Layout />
-
+          <AuthProvider>
+            <Layout />
         </AuthProvider>
       </QueryClientProvider>
     </NavigationContainer>

@@ -5,6 +5,7 @@ import useAxiosPrivate from '../../../utils/axiosPrivate';
 import { DrawerScreenProps } from '@react-navigation/drawer';
 import { Button, Text } from '@rneui/themed';
 import { RefreshControl } from 'react-native-gesture-handler';
+import DriveInteractionButton from '../../../components/common/DriveInteractionButton/DriveInteractionButton';
 
 const DrivePage = ({ route, navigation }: DrawerScreenProps<StudentDrawerParamList, "Drive">) => {
     const api = useAxiosPrivate();
@@ -52,21 +53,9 @@ const DrivePage = ({ route, navigation }: DrawerScreenProps<StudentDrawerParamLi
                             <Text style={styles.jobDescription}>{result.data.job_description}</Text>
 
                             <View style={styles.buttonsContainer}>
-                                <Button
-                                    title={!result.data.eligible ? 'Not Eligible' : result.data.registered ? 'Registered' : 'Register'}
-                                    disabled={result.data.registered}
-                                    containerStyle={styles.registerButtonContainer}
-                                    onPress={() => {
-                                        api.post(`/student/drive/${drive}/apply`).then(res => {
-                                            if (res.status === 200) {
-                                                ToastAndroid.show('Registration Successful', ToastAndroid.SHORT);
-                                                result.refetch();
-                                            }
-                                        });
-                                    }}
-                                    titleStyle={styles.buttonTitle}
-                                    buttonStyle={styles.registerButton}
-                                />
+
+                                <DriveInteractionButton eligible={false} registered={false} />
+
                                 <Button
                                     title="Know More about Company"
                                     onPress={() => {

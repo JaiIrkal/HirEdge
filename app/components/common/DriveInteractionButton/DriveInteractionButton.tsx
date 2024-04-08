@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, ToastAndroid, View } from 'react-native';
 import { Button } from '@rneui/themed';
 import useAxiosPrivate from '../../../utils/axiosPrivate';
 
@@ -47,7 +47,12 @@ const DriveInteractionButton = ({ registered, eligible, drive_id }: Props) => {
             buttonStyle={styles.registerButton}
             titleStyle={styles.title}
             onPress={() => {
-
+                api.post(`/student/drive/${drive_id}/apply`).then((res)=>{
+                    if(res.status==200)
+                        ToastAndroid.show("Registered", ToastAndroid.SHORT)
+                }).catch(err=>{
+                    ToastAndroid.show("Something went wrong..", ToastAndroid.SHORT)
+                })
             }}
         >
             Register

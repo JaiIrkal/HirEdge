@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View, Dimensions, TextInput } from 'react-native'
+import { StyleSheet, TouchableOpacity, View, Dimensions, TextInput, ToastAndroid } from 'react-native'
 import React, { useRef, useState } from 'react'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Button, CheckBox, Icon, Input, Text } from '@rneui/themed'
@@ -69,15 +69,14 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
 
 
     const onSubmit = (data: AddDriveValues) => {
-        console.log({
+        api.post('tpo/drives', {
             company_id: route.params.company_id,
             company_name: route.params.company_name, ...data
-        });
-        // api.post('tpo/drives', data).then((res) => {
-        //     if (res.status == 200) {
-        //         ToastAndroid.show("Drive added successfully", ToastAndroid.SHORT);
-        //     }
-        // }).catch((err) => { console.log(err) })
+        }).then((res) => {
+            if (res.status == 200) {
+                ToastAndroid.show("Drive added successfully", ToastAndroid.SHORT);
+            }
+        }).catch((err) => { console.log(err) })
     }
     const [open, setOpen] = useState(false);
 
@@ -246,7 +245,7 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
                     render={({ field: { value, onChange } }) => (
                         <Input
                             label="10th Percentage"
-                            value={""}
+                            value={value ? value.toString() : ""}
                             keyboardType='decimal-pad'
                             onChangeText={onChange}
                             inputMode='decimal'
@@ -268,7 +267,7 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
                     render={({ field: { value, onChange }, fieldState: { } }) => (
                         <Input
                             label="12th Percentage"
-                            value={""}
+                            value={value ? value.toString() : ""}
                             inputMode='decimal'
                             keyboardType='decimal-pad'
                             onChangeText={onChange}

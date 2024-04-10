@@ -17,7 +17,7 @@ interface AddDriveValues {
     job_title: string,
     job_description: string,
     job_ctc: string,
-    job_locations: Array<string>,
+    job_locations: string,
     tenth_cutoff: number,
     twelfth_cutoff: number,
     ug_cutoff: number,
@@ -238,6 +238,17 @@ const AddDrive = ({ route }: DrawerScreenProps<TPODrawerParamList, "Add Drive">)
                     )}
                 />
                 </View>
+
+                <Controller
+                    name="job_locations"
+                    control={control}
+                    render={({ field: { value, onChange } }) => (<Input
+                        value={value}
+                        onChangeText={onChange}
+                        label="job_locations"
+                        placeholder='Enter Job Locations seperated by comma'
+                    />)}
+                />
 
                 <Controller
                     name='tenth_cutoff'

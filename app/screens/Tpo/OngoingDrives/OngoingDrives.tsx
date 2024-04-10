@@ -91,7 +91,7 @@ const OngoingDrives = ({ navigation }: DrawerScreenProps<TPODrawerParamList, 'On
                 scrollEnabled
                 renderItem={({ item }) => (
                     <TouchableOpacity
-                        onLongPress={() => {
+                        onPress={() => {
                             navigation.navigate('Drive', {
                                 drive_id: item._id
                             })

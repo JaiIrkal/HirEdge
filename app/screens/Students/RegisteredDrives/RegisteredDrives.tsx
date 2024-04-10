@@ -75,7 +75,7 @@ const RegisteredDrives = () => {
 
             }}>{"Drives You Registered For"}</Text>
                 <FlashList
-                    data={[...data.pages.flatMap((data) => (data.data)), ...data.pages.flatMap((data) => (data.data)), ...data.pages.flatMap((data) => (data.data))]}
+                    data={data.pages.flatMap((data) => (data.data))}
                     renderItem={({ item, index }) => (<View style={{
                         backgroundColor: 'white',
                         height: height * 0.2,

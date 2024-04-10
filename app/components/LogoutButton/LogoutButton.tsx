@@ -22,12 +22,8 @@ const LogoutButton = () => {
         }} icon={<Icon name='logout' />} titleStyle={{
             fontSize: 20
             }} onPress={async () => {
-                if (authState?.role === 'student')
-                    await messaging().unsubscribeFromTopic('NewDrive')
 
-                await logout();
-
-
+                logout();
 
             }}>Logout</Button>
     )

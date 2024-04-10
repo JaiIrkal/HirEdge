@@ -10,7 +10,7 @@ const useLogout = () =>{
     const axiosPrivate = useAxiosPrivate();
 
     const logout = async () =>{
-    
+        console.log("logout called  ")
         try{
 
             const refresh_token  = await getValueFor('refresh_token');
@@ -23,8 +23,8 @@ const useLogout = () =>{
             })
 
             if(response.status==200){
-            await deleteItem('refresh_token');
-            setAuthState(null)
+                {await deleteItem('refresh_token');
+                setAuthState(null) } 
             }
         }catch(err){
             console.log(err);

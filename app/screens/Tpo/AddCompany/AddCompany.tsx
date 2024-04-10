@@ -26,9 +26,10 @@ const AddCompany = () => {
         api.post('/tpo/companies', values).then((res) => {
             if (res.status === 200) {
                 ToastAndroid.show('Company Added to Database', ToastAndroid.SHORT);
-
             }
-        }).catch((e) => { console.log(e) });
+        }).catch((e) => {
+            ToastAndroid.show("Errot Occured", ToastAndroid.SHORT);
+        });
     }
 
     return (
@@ -47,7 +48,7 @@ const AddCompany = () => {
                         onChangeText={onChange}
                         placeholder='Enter Company Name'
                         label="Company Name"
-                    // errorMessage={errors.company_name}
+                        errorMessage={error?.message}
                     />)}
                         />
             <Controller

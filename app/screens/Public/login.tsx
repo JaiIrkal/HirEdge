@@ -26,7 +26,7 @@ const Login = ({ navigation }: StackScreenProps<RootStackParamList, 'Login'>) =>
         await api.post('/login', data).then(async (res) => {
             if (res.status == 200) {
                 save('refresh_token', `${res.data?.refresh_token}`);
-                setAuthState({ access_token: res.data?.access_token, role: res.data?.role })
+                setAuthState({ access_token: res.data?.access_token, role: res.data?.role, user_id: data.user_id })
                 if (role === 'student') {
                     await messaging().subscribeToTopic('NewDrive')
                 }

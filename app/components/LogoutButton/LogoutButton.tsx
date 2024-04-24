@@ -22,9 +22,8 @@ const LogoutButton = () => {
         }} icon={<Icon name='logout' />} titleStyle={{
             fontSize: 20
             }} onPress={async () => {
-
                 logout();
-
+                await messaging().unsubscribeFromTopic('NewDrive');
             }}>Logout</Button>
     )
 }

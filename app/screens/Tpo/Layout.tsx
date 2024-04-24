@@ -13,6 +13,7 @@ import LogoutButton from '../../components/LogoutButton/LogoutButton';
 import Drive from './Drive/Drive';
 import PostUpdate from './PostUpdate/PostUpdate';
 import Company from './Companies/Companies';
+import UpdateRequests from './Update Requests/UpdateRequests';
 
 const TPODrawerNavigator = createDrawerNavigator<TPODrawerParamList>();
 
@@ -43,9 +44,16 @@ const TPOLayout = () => {
 
                     }}
                 />
+
                 <TPODrawerNavigator.Screen name='Add Student' component={AddStudent} options={{
                     unmountOnBlur: true
                 }} />
+
+                <TPODrawerNavigator.Screen
+                    name='Update Requests'
+                    component={UpdateRequests}
+                />
+
                 <TPODrawerNavigator.Screen name='Add Company' component={AddCompany}
                     options={{
                         unmountOnBlur: true

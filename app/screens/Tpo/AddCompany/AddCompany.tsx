@@ -60,7 +60,7 @@ const AddCompany = () => {
                         onChangeText={onChange}
                             placeholder='Enter Company Website'
                             label="Company Website"
-                    // errorMessage={errors.company_website}
+                        // errorMessage={errors.company_website}    
                     />
                 )}
             />

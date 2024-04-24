@@ -55,7 +55,8 @@ const OngoingDrivePanel = () => {
                         borderRadius:20,
                         padding: 10,
                         backgroundColor:'#ffffff',
-                        marginBottom: 30
+                        marginBottom: 30,
+                        marginRight: 10
                     }}>
                         <Card.Title style ={styles.cardTitle}>
                             {item.company_name}

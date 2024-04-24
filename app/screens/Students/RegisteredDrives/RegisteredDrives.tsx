@@ -1,4 +1,4 @@
-import { StyleSheet, View, useWindowDimensions } from 'react-native'
+import { FlatList, StyleSheet, View, useWindowDimensions } from 'react-native'
 import React from 'react'
 
 import { useInfiniteQuery } from '@tanstack/react-query'
@@ -6,7 +6,9 @@ import useAxiosPrivate from '../../../utils/axiosPrivate';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 
-import { Text, Card, Divider, Icon } from '@rneui/themed';
+import { Text, Card, Divider, Icon, Button } from '@rneui/themed';
+import { useNavigation } from '@react-navigation/native';
+import { DrawerNavigationProp } from '@react-navigation/drawer';
 
 interface DriveData {
     _id: string;
@@ -31,14 +33,15 @@ interface RegisteredDrivesResponseType {
 
 const RegisteredDrives = () => {
     const { height, width } = useWindowDimensions();
+    const navigation = useNavigation<DrawerNavigationProp<StudentDrawerParamList, 'Home'>>();
 
     const api = useAxiosPrivate();
 
     const { data, isSuccess, isError, isLoading, fetchNextPage } = useInfiniteQuery({
         queryKey: ['participatedDrives'],
-        queryFn: (): Promise<RegisteredDrivesResponseType> => {
-            return api.get('/student/drives/participated').then((res) => { return res.data.drives });
-        },
+        queryFn: (): Promise<RegisteredDrivesResponseType> =>
+            api.get('/student/drives/participated').then(res => res.data.drives)
+        ,
         getNextPageParam: (lastPage) => {
             if (lastPage.metadata.page < lastPage.metadata.pageCount) {
                 return (lastPage.metadata.page + 1);
@@ -71,54 +74,76 @@ const RegisteredDrives = () => {
             <View style={[styles.panelContainer, {
                 flex: 1,
                 minHeight: height * 0.6
-            }]}><Text h4 style={{ marginBottom: 10 }} onPress={() => {
+            }]}>
+                <Text h4 style={{ marginBottom: 10 }}>{"Drives You Registered For"}</Text>
 
-            }}>{"Drives You Registered For"}</Text>
-                <FlashList
-                    data={data.pages.flatMap((data) => (data.data))}
-                    renderItem={({ item, index }) => (<View style={{
+                <FlatList
+                    data={data.pages.flatMap(page => page.data)}
+                    horizontal
+                    keyExtractor={(item) => item._id}
+                    renderItem={({ item, index }) => (
+                        <View style={{
                         backgroundColor: 'white',
-                        height: height * 0.2,
+                            height: height * 0.15,
                         borderRadius: 20,
                         padding: 7,
                         marginHorizontal: 10,
                         flexDirection: 'row',
                     }}>
                         <View style={{
-                            flex: 3,
+                                flex: 1,
                             display: 'flex',
                             flexDirection: 'column',
                             justifyContent: 'center',
                             alignItems: 'center'
                         }}>
                             <Icon name="roman-numeral-1" type="material-community" style={{
-                            }} size={100} />
+                                }} size={100} />
                         </View>
-                        <View style={{
-                            flex: 7,
-
+                            <View style={{
+                                flex: 1,
                         }}>
                             <Text h4 style={{ textAlign: 'center' }}>{item.company_name}</Text>
                             <Divider />
                             <Text > Job Role: {item.job_title}</Text>
-                            <Text> CTC : {item.job_ctc}</Text>
-                            <Text>Status: {item.status[0].status}</Text>
+                                <Text> CTC : {item.job_ctc}</Text>
+                                <Button
+                                    onPress={() => {
+                                        navigation.navigate('Drive', {
+                                            drive_id: item._id
+                                        })
+                                    }}
+                                    buttonStyle={styles.buttonStyle}
+                                >
+                                    <Text style={styles.buttonText}>Learn More</Text>
+                                </Button>
                         </View>
 
-                    </View>)}
-                    estimatedItemSize={5}
-                    onEndReached={fetchNextPage}
-                    ItemSeparatorComponent={() => (<View style={{ height: 10 }}></View>)}
+                        </View>
+                    )}
                 />
+
             </View>
         )
     return null
 }
 
-export default RegisteredDrives
+export default RegisteredDrives;
 
 const styles = StyleSheet.create({
     panelContainer: {
 
+    },
+    buttonStyle: {
+        backgroundColor: '#107387',
+        borderRadius: 10,
+        paddingVertical: 10,
+        marginTop: 15,
+    },
+    buttonText: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 16,
+        textAlign: 'center',
     }
 })

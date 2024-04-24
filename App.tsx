@@ -34,7 +34,9 @@ messaging().setBackgroundMessageHandler(async remoteMessage => {
 export default function App() {
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-      Alert.alert('A new FCM message', JSON.stringify(remoteMessage));
+      Alert.alert(remoteMessage.notification?.title!, remoteMessage.notification?.body, undefined, {
+        cancelable: false,
+      });
     });
     return () => {
       unsubscribe()

@@ -59,10 +59,10 @@ const Profile = () => {
                         </View>
                     </View>
 
-                    <View style={styles.buttonContainer}>
+                    {/* <View style={styles.buttonContainer}>
                         <Button title="Change Password" color="warning" containerStyle={[styles.button, { marginRight: 10 }]} />
                         <Button title="Logout" color="error" containerStyle={styles.button} />
-                    </View>
+                    </View> */}
                 </ScrollView>
             </View>
         );

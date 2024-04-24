@@ -4,6 +4,7 @@ import useRefreshToken from "./refresh";
 type AuthStateType = {
     access_token: string | null;
     role: string | null;
+    user_id?: string;
 }
 
 type AuthContextType = {

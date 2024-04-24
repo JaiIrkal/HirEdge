@@ -14,7 +14,12 @@ const OngoingDrivePanel = () => {
 
     const result = useQuery({
         queryKey: ['fetchOngoingDrives'],
-        queryFn: (): Promise<StudentOngoingDriveResponseType> => (api.get('/student/drives').then(res => res.data.drives))
+        queryFn: (): Promise<StudentOngoingDriveResponseType> => (api.get('/student/drives', {
+            params: {
+                limit: 5,
+                page: 1,
+            }
+        }).then(res => res.data.drives))
     })
 
     const renderOngoingDrive = ({ item }: { item: StudentDriveListType }) => {

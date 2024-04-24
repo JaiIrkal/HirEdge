@@ -16,9 +16,12 @@ const DrivePage = ({ route, navigation }: DrawerScreenProps<TPODrawerParamList, 
 
     const result = useQuery({
         queryKey: ["TPODriveData", drive_id],
-        queryFn: (): Promise<TPODriveResponseType> => (
+        queryFn: (): Promise<DriveData> => (
             api.get(`/tpo/drive/${drive_id}`, {
-            }).then(res => res.data)
+                params: {
+                    withStudentData: false,
+                }
+            }).then(res => res.data.drive)
         )
     })
 
@@ -31,23 +34,23 @@ const DrivePage = ({ route, navigation }: DrawerScreenProps<TPODrawerParamList, 
                 <View style={styles.box}>
                     {result.isSuccess && (
                         <>
-                            <Text style={styles.companyName} h2>{result.data?.drive.company_details.company_name}</Text>
-                            <Text h4>Company Website: {result.data?.drive.company_details.company_website}</Text>
-                            <Text h4>Job Title: {result.data?.drive.job_title}</Text>
-                            <Text h4>CTC: {result.data.drive.job_ctc}</Text>
+                            <Text style={styles.companyName} h2>{result.data?.company_details.company_name}</Text>
+                            <Text h4>Company Website: {result.data?.company_details.company_website}</Text>
+                            <Text h4>Job Title: {result.data?.job_title}</Text>
+                            <Text h4>CTC: {result.data.job_ctc}</Text>
 
                             <Text h4 style={styles.eligibilityTitle}>Eligibility Criteria</Text>
                             <View style={styles.eligibilityContainer}>
-                                <Text h4>Branch: {result.data.drive.branch.join(', ')}</Text>
-                                <Text h4>10th Marks: {result.data.drive.tenth_cutoff ? `${result.data.drive.tenth_cutoff}%` : 'No Criteria'}</Text>
-                                <Text h4>12th Marks: {result.data.drive.twelfth_cutoff ? `${result.data.drive.twelfth_cutoff}%` : 'No Criteria'}</Text>
-                                <Text h4>UG CGPA: {result.data.drive.ug_cutoff || 'No Criteria'}</Text>
+                                <Text h4>Branch: {result.data.branch.join(', ')}</Text>
+                                <Text h4>10th Marks: {result.data.tenth_cutoff ? `${result.data.tenth_cutoff}%` : 'No Criteria'}</Text>
+                                <Text h4>12th Marks: {result.data.twelfth_cutoff ? `${result.data.twelfth_cutoff}%` : 'No Criteria'}</Text>
+                                <Text h4>UG CGPA: {result.data.ug_cutoff || 'No Criteria'}</Text>
                             </View>
 
                             <View style={styles.jobLocationsContainer}>
                                 <Text h4>Job Locations: </Text>
                                 <View style={styles.jobLocations}>
-                                    {result.data.drive.job_locations.map((city, index, arr) => (
+                                    {result.data.job_locations.map((city, index, arr) => (
                                         <React.Fragment key={index}>
                                             <Text style={styles.jobLocation}>{city} {index != arr.length - 1 ? "," : null}</Text>
 
@@ -57,7 +60,7 @@ const DrivePage = ({ route, navigation }: DrawerScreenProps<TPODrawerParamList, 
                             </View>
                             <View >
                                 <Text h4>Job Description</Text>
-                                <AutoLink text={result.data.drive.job_description}
+                                <AutoLink text={result.data.job_description}
                                     linkStyle={{
                                         fontSize: 20
                                     }}
@@ -76,7 +79,7 @@ const DrivePage = ({ route, navigation }: DrawerScreenProps<TPODrawerParamList, 
                                     onPress={() => {
                                         navigation.navigate("Post Update", {
                                             drive_id: drive_id,
-                                            company_name: result.data.drive.company_details.company_name,
+                                            company_name: result.data.company_details.company_name,
                                         })
                                     }}
                                 />

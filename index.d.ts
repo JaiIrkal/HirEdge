@@ -153,6 +153,7 @@ type TPODrawerParamList = {
     company_name: string;
   };
   Companies:undefined;
+  "Update Requests": undefined;
 
 };
 
@@ -233,7 +234,10 @@ type DriveData = {
   branch: string[];
   rounds: Round[];
   job_description: string;
-  company_details: CompanyDetails;
+  company_details: {
+    company_name: string;
+    company_website: string;
+  };
   registered_students: Array<string>
   current_status: string;
   updates: Array<{
@@ -244,8 +248,18 @@ type DriveData = {
   }>;
 }
 
+type DriveStudentsDataType={
+  [key: string]: {
+    user_id: string;
+    first_name: string;
+    middle_name: string;
+    last_name: string;
+    email: string;
+    mobile: string;
+  }
+}
 
 type TPODriveResponseType = {
   drive: DriveData;
-  studentData: Object;
+  studentData: DriveStudentsDataType;
 }

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@rneui/base';
 import { RefreshControl } from 'react-native-gesture-handler';
 import OffersTillNowCard from '../../../components/OffersTillNowCard/OffersTillNowCard';
-import { Card } from '@rneui/themed';
+import { Card, Icon } from '@rneui/themed';
 import OngoingDrivePanel from '../OngoingDrivePanel/OngoingDrivePanel';
 import { DrawerScreenProps } from '@react-navigation/drawer';
 import { useQueryClient } from '@tanstack/react-query';
@@ -57,38 +57,63 @@ const TPODashboard = ({ route, navigation }: DrawerScreenProps<TPODrawerParamLis
                 </Button>
             </Card> */}
 
-            <View style={styles.manageStudentCard}>
+            <View style={styles.manageStudentCard} >
                 <Text style={styles.cardTitle}> Students :</Text>
                 <Card.Divider />
                 <Button
                     onPress={() => {
                         navigation.navigate('Add Student')
                     }}
+                    buttonStyle={{
+                        borderRadius: 20
+                    }}
+                    icon={<Icon name="add-user" type='entypo' color={'white'} />}
+                    iconPosition='left'
                 >
                     Add Student
                 </Button>
+
+                <Button
+                    buttonStyle={{
+                        borderRadius: 20
+                    }}
+                    icon={<Icon name="briefcase" type='entypo' color={'white'} />}
+                    iconPosition='left'
+                    titleStyle={{
+                        marginHorizontal: 5
+                    }}
+                    onPress={() => {
+                        navigation.navigate('Update Requests')
+                    }}
+                >
+                    Update Requests
+                </Button>
+
             </View>
             
             <View style={styles.manageStudentCard}>
                 <Text style={styles.cardTitle}> Drives :</Text>
                 <Card.Divider />
 
-                <Card.Divider />
-                </View>
-
-                <View style={styles.manageStudentCard}>
-                <Text style={styles.cardTitle}>View : </Text>
-                <Card.Divider />
-                <Button
-                    // onPress={() => {
-                    //     navigation.navigate('Drive');
-                    // }}
+                <Button buttonStyle={{
+                    borderRadius: 20
+                }}
+                    icon={<Icon name="briefcase" type='entypo' color={'white'} />}
+                    iconPosition='left'
+                    titleStyle={{
+                        marginHorizontal: 5
+                    }}
+                    onPress={() => {
+                        navigation.navigate('Ongoing Drives')
+                    }}
                 >
-                    View Drives
+                    View Ongoing Drives
                 </Button>
+
             </View>
-        
-           
+
+
+
         </ScrollView>
     )
 }
@@ -110,6 +135,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         elevation: 5,
+        rowGap: 5
     },
     cardTitle: {
         padding:10,

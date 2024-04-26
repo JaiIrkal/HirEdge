@@ -75,7 +75,7 @@ const RegisteredDrives = () => {
                 flex: 1,
                 minHeight: height * 0.6
             }]}>
-                <Text h4 style={{ marginBottom: 10 }}>{"Drives You Registered For"}</Text>
+                <Text h4 style={{ marginBottom: 10, marginLeft:15 }}>{"Drives You Registered For"}</Text>
 
                 <FlatList
                     data={data.pages.flatMap(page => page.data)}

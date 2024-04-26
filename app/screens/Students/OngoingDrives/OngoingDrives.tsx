@@ -88,7 +88,8 @@ const OngoingDrives = ({ navigation }: DrawerScreenProps<StudentDrawerParamList,
                                     elevation: 3,
                                     borderRadius: 5,
                                     flexDirection: 'row',
-                                    columnGap: 5
+                                    columnGap: 5,
+                                    margin:8
                                 }}>
                                     <View>
                                         <CompanyTierIcon tier={item.tier} size={height * 0.08} />

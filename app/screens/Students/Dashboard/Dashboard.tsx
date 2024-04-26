@@ -23,7 +23,7 @@ const StudentDashboard = () => {
                 <OffersTillNowCard />
             </View>
 
-            <View>
+            <View style={{margin:10}}>
                 <PrevYearOfferCard />
             </View>
             <OngoingDrivePanel />
@@ -63,6 +63,6 @@ const styles = StyleSheet.create({
     cardContainer: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        marginBottom: 20,
+        margin: 10,
     },
 });

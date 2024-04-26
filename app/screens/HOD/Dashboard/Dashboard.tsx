@@ -150,16 +150,19 @@ const HODDashboard = () => {
                 backgroundColor: 'white',
                 margin: 10,
                 borderRadius: 10,
-                padding: 5
+                padding: 5,
+                paddingTop:15,
+                paddingBottom:15
             }}>
-                <View>
-                    <Text style={{ textAlign: 'center' }}>Dream Tier</Text>
+                <View style={{marginBottom:10}}>
+                    <Text style={{ textAlign: 'center', color:"#D862BC", fontWeight:"800" }}>Dream Tier</Text>
                     {
                         data.tier0.map((student, index) => {
                             return (
                                 <View key={index} style={{
                                     display: 'flex',
-                                    flexDirection: 'row'
+                                    flexDirection: 'row',
+                                    justifyContent:"space-around"
                                 }}>
                                     <Text style={{}}>{student.first_name} {student.last_name}</Text>
                                     {
@@ -177,14 +180,15 @@ const HODDashboard = () => {
                     }
 
                 </View>
-                <View>
-                    <Text style={{ textAlign: 'center' }}>Tier-I</Text>
+                <View style={{marginBottom:10}}>
+                    <Text style={{ textAlign: 'center', color: "#FFAF45", fontWeight:"800" }}>Tier-I</Text>
                     {
                         data.tier1.map((student, index) => {
                             return (
                                 <View key={index} style={{
                                     display: 'flex',
-                                    flexDirection: 'row'
+                                    flexDirection: 'row',
+                                    justifyContent:"space-around"
                                 }}>
                                     <Text style={{ textAlign: 'center' }}>{student.first_name} {student.last_name}</Text>
                                     {
@@ -201,21 +205,22 @@ const HODDashboard = () => {
                         })
                     }
                 </View>
-                <View>
-                    <Text style={{ textAlign: 'center' }}>Tier-II</Text>
+                <View style={{marginBottom:10}}>
+                    <Text style={{ textAlign: 'center', fontWeight:"800" }}>Tier-II</Text>
                     {
                         data.tier2.map((student, index) => {
                             return (
                                 <View key={index} style={{
                                     display: 'flex',
-                                    flexDirection: 'row'
+                                    flexDirection: 'row',
+                                    justifyContent:"space-around"
                                 }}>
                                     <Text style={{ textAlign: 'center' }}>{student.first_name} {student.last_name}</Text>
                                     {
                                         student.offers.map((offer, index) => (<View key={index} style={{
                                             display: 'flex',
                                             flexDirection: 'row',
-                                            columnGap: 5
+                                            columnGap: 5,
                                         }}>
                                             <Text style={{ textAlign: 'center' }}>{offer.job_role}</Text>
                                             <Text style={{ textAlign: 'center' }}>{offer.job_ctc}</Text>
@@ -227,14 +232,14 @@ const HODDashboard = () => {
                     }
 
                 </View>
-                <View>
-                    <Text style={{ textAlign: 'center' }}>Tier-III</Text>
+                <View style={{marginBottom:10}}>
+                    <Text style={{ textAlign: 'center', color:"#CD7F32", fontWeight:"800" }}>Tier-III</Text>
                     {
                         data.tier3.map((student, index) => {
                             return (
                                 <View key={index} style={{
                                     display: 'flex',
-                                    flexDirection: 'row'
+                                    flexDirection: 'row',
                                 }}>
                                     <Text style={{ textAlign: 'center' }}>{student.first_name} {student.last_name}</Text>
                                     {

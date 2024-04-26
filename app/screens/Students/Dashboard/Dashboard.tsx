@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center', // Center content horizontally
     },
     headerText: {
-        fontSize: 50,
+        fontSize: 38,
         fontWeight: 'bold',
         color: '#107387', // Header text color
     },
